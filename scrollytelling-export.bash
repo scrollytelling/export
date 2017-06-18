@@ -1,13 +1,25 @@
 #!/bin/bash
-#
-# The wget options:
-#   -p --page-requisites
-#   -E --adjust-extension
-#   -H --span-hosts
-#   -k --convert-links
+set -euo pipefail
+IFS=$'\n\t'
 
-domain=jaaroverzicht.radio1.nl
-story=jaaroverzicht
+# This script download an entire Scrollytelling story, media and all.
+# Give it the URL of the story as parameter.
+# Joost Baaij
+# joost@spacebabies.nl
+
+if [ $# -eq 0 ]
+then
+  echo
+  echo "USAGE: `basename $0` <URL to a single Scrollytelling>"
+  echo "  e.h. `basename $0` https://app.scrollytelling.io/datwatjenietziet"
+  echo
+  exit
+fi
+
+IFS=/; read -a urlparts <<<"${1#https://}"
+
+domain="${urlparts[0]}"
+story="${urlparts[1]}"
 
 mkdir -p $domain
 cd $domain
