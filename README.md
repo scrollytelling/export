@@ -25,7 +25,11 @@ When you open the inspector, all elements should come from localhost. File a bug
 
 # CAVEATS
 
-It assumes BSD sed (which is on OSX), not GNU sed.
+On OSX, You're gonna need the GNU tools for this one. Especially xargs.
+
+```
+brew install findutils
+```
 
 # AUTHOR
 
