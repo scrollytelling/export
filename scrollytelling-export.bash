@@ -1,8 +1,13 @@
 #!/bin/bash
 set -e
 
-# This script download an entire Scrollytelling story, media and all.
-# Give it the URL of the story as parameter.
+# Scrollytelling
+# www.scrollytelling.io
+#
+# This script downloads an entire Scrollytelling story: code and all content.
+# It organises a local folder so that it works out of the box. Chuck it on any webserver.
+#
+# The URL to the story is given as parameter on the command line.
 # Joost Baaij
 # joost@spacebabies.nl
 
@@ -29,38 +34,40 @@ wget --force-directories --timestamping --no-verbose --adjust-extension "$1"
 cd $domain
 
 echo "# Entries CSS: find and download, download media, and update the URL"
-grep -oi '/entries.*css' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose https://scrollytelling.link{}
+grep -oi '/entries.*css' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose 'https://scrollytelling.link{}'
 _sed 's,\/entries,\/scrollytelling\.link\/entries,g' "${story}.html"
 
 echo "# CSS / JS from the asset pipeline"
-grep -oiE 'https?:\/\/scrollytelling\.link.*?[^?"]+' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose {}
+grep -oiE 'https?:\/\/scrollytelling\.link.*?[^?"]+' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/scrollytelling\.link,\/scrollytelling\.link,g' "${story}.html"
 
 echo "# in application JS: search & replace:"
 echo "# //output.scrollytelling.io"
-grep -oiE '\/\/output\.scrollytelling\.io.*?[^"]+' scrollytelling.link/assets/pageflow/application*.js | _xargs wget --force-directories --timestamping --no-verbose https:{}
+grep -oiE '\/\/output\.scrollytelling\.io.*?[^"]+' scrollytelling.link/assets/pageflow/application*.js | _xargs wget --force-directories --timestamping --no-verbose 'https:{}'
 _sed 's,\/\/output,\/output,g' scrollytelling.link/assets/pageflow/application*.js
 echo "# //scrollytelling.link"
-grep -oiE '\/\/scrollytelling\.link.*?[^"]+' scrollytelling.link/assets/pageflow/application*.js | _xargs wget --force-directories --timestamping --no-verbose https:{}
+grep -oiE '\/\/scrollytelling\.link.*?[^"]+' scrollytelling.link/assets/pageflow/application*.js | _xargs wget --force-directories --timestamping --no-verbose 'https:{}'
 _sed 's,\/\/scrollytelling\.link,\/scrollytelling\.link,g' scrollytelling.link/assets/pageflow/application*.js
 
 echo "# in application css: search & replace:"
 echo "# scrollytelling.link"
-grep -oiE '\/\/scrollytelling\.link.*?[^\)]+' scrollytelling.link/assets/pageflow/application*.css | _xargs wget --force-directories --timestamping --no-verbose https:{}
+grep -oiE '\/\/scrollytelling\.link.*?[^\)]+' scrollytelling.link/assets/pageflow/application*.css | _xargs wget --force-directories --timestamping --no-verbose 'https:{}'
 _sed 's,\/\/scrollytelling\.link,\/scrollytelling\.link,g' scrollytelling.link/assets/pageflow/application*.css
 
 echo "# font awesome"
-grep -oiE '\/\/scrollytelling\.link.*?[^?\)]+' scrollytelling.link/assets/pageflow/themes/*.css | _xargs wget --force-directories --timestamping --no-verbose https:{}
+grep -oiE '\/\/scrollytelling\.link.*?[^?\)]+' scrollytelling.link/assets/pageflow/themes/*.css | _xargs wget --force-directories --timestamping --no-verbose 'https:{}'
 _sed 's,\/\/scrollytelling\.link,\/scrollytelling\.link,g' scrollytelling.link/assets/pageflow/themes/*.css
 
-grep -oiE 'https?:\/\/output\.scrollytelling\.io.*?[^?"]+' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose {}
+echo "# zencoder output from the story HTML"
+grep -oiE 'https?:\/\/output\.scrollytelling\.io.*?[^?"]+' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/output\.scrollytelling\.io,\/output\.scrollytelling\.io,g' ${story}.html
 
-grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?\"']+" ${story}.html | _xargs wget --force-directories --timestamping --no-verbose {}
+echo "# media from the story HTML"
+grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?\"']+" ${story}.html | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/media\.scrollytelling\.io,\/media\.scrollytelling\.io,g' ${story}.html
 
-echo "# story css: media.scrollytelling.io
-grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?"\']+" scrollytelling.link/entries/${story}.css | _xargs wget --force-directories --timestamping --no-verbose {}
+echo "# media from the story CSS"
+grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?\"']+" scrollytelling.link/entries/${story}.css | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/media\.scrollytelling\.io,\/media\.scrollytelling\.io,g' scrollytelling.link/entries/${story}.css
 
 # I don't know what idiot thought these files should be generated.
