@@ -62,11 +62,11 @@ grep -oiE '\/\/scrollytelling\.link.*?[^?\)]+' scrollytelling.link/assets/pagefl
 _sed 's,\/\/scrollytelling\.link,\/scrollytelling\.link,g' scrollytelling.link/assets/pageflow/themes/*.css
 
 echo "# zencoder output from the story HTML"
-grep -oiE 'https?:\/\/output\.scrollytelling\.io.*?[^?"]+' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose '{}'
+grep -oiE 'https?:\/\/output\.scrollytelling\.io.*?[^?"]+' ${story}.html | grep -v ":id" | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/output\.scrollytelling\.io,\/output\.scrollytelling\.io,g' ${story}.html
 
 echo "# media from the story HTML"
-grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?\"']+" ${story}.html | _xargs wget --force-directories --timestamping --no-verbose '{}'
+grep -oiE "https?:\/\/media\.scrollytelling\.io.*?[^?\"']+" ${story}.html | grep -v ":id" | _xargs wget --force-directories --timestamping --no-verbose '{}'
 _sed 's,https?:\/\/media\.scrollytelling\.io,\/media\.scrollytelling\.io,g' ${story}.html
 
 echo "# media from the story CSS"
@@ -88,6 +88,6 @@ cd -
 
 # I don't know what idiot thought these files should be generated.
 find . -type f -name 'Icon?' -delete
-find . -type -f -name '.DS_Store' -delete
+find . -type f -name '.DS_Store' -delete
 
 cd -
