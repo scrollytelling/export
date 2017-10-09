@@ -7,7 +7,7 @@ Download an entire scrollytelling to a folder, with all media included.
 After you've cloned this repository, do this:
 
 ```
-bash scrollytelling-export.bash <URL of the story, without the #hash at the end}
+bash export.bash <URL of the story, without the #hash at the end}
 ```
 
 # RESULTS!
