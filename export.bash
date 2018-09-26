@@ -24,7 +24,7 @@ fi
 : "${BUCKET:?}"
 
 echo "# parse domain and path parts from the first command line argument"
-IFS=/; read -a urlparts <<<"${1#https://}"
+IFS=/ read -a urlparts <<<"${1#https://}"
 domain="${urlparts[0]}"
 story="${urlparts[1]}"
 
