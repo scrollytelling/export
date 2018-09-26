@@ -85,9 +85,3 @@ do
   done
 done
 cd -
-
-# I don't know what idiot thought these files should be generated.
-find . -type f -name 'Icon?' -delete
-find . -type f -name '.DS_Store' -delete
-
-cd -
