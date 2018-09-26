@@ -41,7 +41,7 @@ grep -oi '/entries.*css' ${story}.html | _xargs -I% wget --force-directories --t
 _sed 's,\/entries,\/scrollytelling\.link\/entries,g' "${story}.html"
 
 echo "# CSS / JS from the asset pipeline"
-grep -oiE 'https?:\/\/scrollytelling\.link[^?"]*' ${story}.html | _xargs wget --force-directories --timestamping --no-verbose
+grep -oiE "https?:\/\/scrollytelling\.link[^\"']*" ${story}.html | _xargs -L1 wget --force-directories --timestamping --no-verbose
 _sed 's,https?:\/\/scrollytelling\.link,\/scrollytelling\.link,g' "${story}.html"
 
 echo "# in application JS: search & replace:"
