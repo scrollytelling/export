@@ -17,11 +17,8 @@ then
   echo "USAGE: `basename $0` <URL to a single Scrollytelling>"
   echo "  e.g. `basename $0` https://app.scrollytelling.io/datwatjenietziet"
   echo
-  echo "The environment variable BUCKET needs to be set to the output bucket on S3."
   exit
 fi
-
-: "${BUCKET:?}"
 
 echo "# parse domain and path parts from the first command line argument"
 IFS=/ read -a urlparts <<<"${1#https://}"
@@ -61,27 +58,16 @@ echo "# font awesome"
 grep -oiE '\/\/scrollytelling\.link[^?\)]*' scrollytelling.link/assets/pageflow/themes/*.css | _xargs -I % wget --force-directories --timestamping --no-verbose 'https:%'
 _sed 's,\/\/scrollytelling\.link,\/scrollytelling\.link,g' scrollytelling.link/assets/pageflow/themes/*.css
 
-echo "# zencoder output from the story HTML"
-grep -oiE 'https?:\/\/output\.scrollytelling\.io[^?"]*' ${story}.html | grep -v ":id" | _xargs wget --force-directories --timestamping --no-verbose
-_sed 's,https?:\/\/output\.scrollytelling\.io,\/output\.scrollytelling\.io,g' ${story}.html
+echo "# all files used in the story"
+wget "https://app.scrollytelling.io/editor/entries/${story}/files/video_files.json" | jq ".[] | select(.url)"
+wget "https://app.scrollytelling.io/editor/entries/${story}/files/audio_files.json"
+wget "https://app.scrollytelling.io/editor/entries/${story}/files/image_files.json"
+wget "https://app.scrollytelling.io/editor/entries/${story}/files/text_track_files.json"
 
-echo "# media from the story HTML"
-grep -oiE "https?:\/\/media\.scrollytelling\.io[^?\"']*" ${story}.html | grep -v ":id" | _xargs wget --force-directories --timestamping --no-verbose
-_sed 's,https?:\/\/media\.scrollytelling\.io,\/media\.scrollytelling\.io,g' ${story}.html
+echo "# globally replace CDN media urls with local paths"
+find . -type f -print0| xargs -0 sed -i 's/https:\/\/media/media/g'
 
-echo "# media from the story CSS"
-grep -oiE "https?:\/\/media\.scrollytelling\.io[^?\"']*" scrollytelling.link/entries/${story}.css | _xargs wget --force-directories --timestamping --no-verbose
-_sed 's,https?:\/\/media\.scrollytelling\.io,\/media\.scrollytelling\.io,g' scrollytelling.link/entries/${story}.css
+echo "# globally replace CDN output urls with local paths"
+find . -type f -print0| xargs -0 sed -i 's/https:\/\/output/output/g'
 
-echo "# sync all the output directories using AWS CLI"
-cd output.scrollytelling.io
-types=(video_files audio_files)
-for type in "${types[@]}"
-do
-  folders=(v1/main/pageflow/$type/*/*/*)
-  for folder in "${folders[@]}"
-  do
-    aws s3 sync "s3://${BUCKET}/${folder}" "${folder}"
-  done
-done
 cd -
