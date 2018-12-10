@@ -6,8 +6,9 @@ Download an entire scrollytelling to a folder, with all media included.
 
 After you've cloned this repository, do this:
 
-```
-bash export.bash <URL of the story, without the #hash at the end}
+``` bash
+cd files
+ruby scrape.rb
 ```
 
 # RESULTS!
@@ -25,17 +26,15 @@ When you open the inspector, all elements should come from localhost. File a bug
 
 # CAVEATS
 
-### gnu xargs/findutils 🔍
+### List of stories
 
-On OSX, You're gonna need the GNU tools for this one. Especially xargs.
-
-```
-brew install findutils
-```
+At the moment we rely on a static list of stories in `published_entries`. If stories
+are missing, update that file and rerun everything.
 
 ### s3 output bucket 📂
 
-You're also gonna need access to our output bucket on S3, since the HTML doesn't contain any of the files needed for http streaming (HLS and MPEG-DASH). Without these files, you'll still get the full video files though.
+You're gonna need access to our media buckets on S3. We need it to sync all of the files,
+because the page sources does not contain links to everything.
 
 # LONG-TERM STORAGE
 

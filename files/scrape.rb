@@ -12,6 +12,9 @@ browser.text_field(label: 'Password*').set '9tzRFz9TS9eH'
 browser.button(value: 'Login').click
 
 Dir.glob("../entries/hu.scrollytelling.io/*").each do |path|
+  next if path[/scrollytelling\.com\z/]
+  next if path[/scrollytelling\.link\z/]
+
   puts
   puts "== path: #{path}"
   dirs = path.split('/')
