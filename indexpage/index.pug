@@ -1,0 +1,36 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    title #{account} Scrollytellings
+    link(rel="stylesheet" href="css/main.css")
+      
+  body
+    section.hero.is-medium.is-primary
+      .hero-body
+        .container
+          .columns
+            .column.is-8-desktop.is-offset-2-desktop
+              h1.title.is-2.is-spaced #{account} Scrollytellings
+              h2.subtitle.is-4 Subtitle
+    
+    section.section
+      .container
+        .columns
+          .column.is-8-desktop.is-offset-2-desktop
+            .content
+              ul.list
+                each entry in entries
+                  li
+                    h3.name= entry.title
+                    p= entry.author
+                    
+    footer.footer.has-text-centered
+      .container
+        .columns
+          .column.is-8-desktop.is-offset-2-desktop
+            p Made by us.
+            
+    script(src="lib/main.js")
