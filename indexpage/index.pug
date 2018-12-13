@@ -5,10 +5,10 @@ html(lang="en")
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
     meta(name="viewport" content="width=device-width, initial-scale=1")
     title #{account} Scrollytellings
-    link(rel="stylesheet" href="css/main.css")
+    link(rel="stylesheet" href="overview/css/main.css")
       
   body
-    section.hero.is-medium.is-primary
+    section.hero.is-medium.is-primary.is-bold
       .hero-body
         .container
           .columns
@@ -24,8 +24,8 @@ html(lang="en")
               ul.list
                 each entry in entries
                   li
-                    h3.name= entry.title
-                    p= entry.author
+                    h2.title= entry.title
+                    h3.subtitle= entry.author
                     
     footer.footer.has-text-centered
       .container
@@ -33,4 +33,4 @@ html(lang="en")
           .column.is-8-desktop.is-offset-2-desktop
             p Made by us.
             
-    script(src="lib/main.js")
+    script(src="overview/js/main.js")

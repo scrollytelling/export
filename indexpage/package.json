@@ -19,15 +19,16 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "css-build": "node-sass _sass/main.scss css/main.css",
+    "css-build": "node-sass _sass/main.scss overview/css/main.css",
     "css-deploy": "npm run css-build && npm run css-postcss",
-    "css-postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
+    "css-postcss": "postcss --use autoprefixer --output overview/css/main.css overview/css/main.css",
     "css-watch": "npm run css-build -- --watch",
-    "deploy": "npm run css-deploy && npm run js-build",
-    "js-build": "babel _javascript --out-dir lib",
+    "build": "npm run css-deploy && npm run js-build && npm run html-build",
+    "js-build": "babel _javascript --out-dir overview/js",
     "js-watch": "npm run js-build -- --watch",
     "start": "npm run css-watch | npm run js-watch | npm run html-watch",
-    "html-build": "pug -O ../entries/hu.scrollytelling.io/vars.json index.pug",
+    "html-build": "pug --obj ../entries/hu.scrollytelling.io/vars.json --pretty index.pug",
+    "deploy-static": "npm run build && rm -rf ../entries/hu.scrollytelling.io/overview && mv overview ../entries/hu.scrollytelling.io/ && cp index.html humans.txt ../entries/hu.scrollytelling.io/",
     "html-watch": "npm run html-build -- --watch"
   },
   "keywords": [
