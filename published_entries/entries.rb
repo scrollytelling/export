@@ -14,30 +14,34 @@ class Export
 
   def attributes
     {
-      locale: locale,
-      title: title,
-      slug: slug,
-      canonical_url: canonical_url,
-      publisher: publisher,
-      published_at: published_at,
-      host: host,
-      author: author
+      "locale" => locale,
+      "title" => title,
+      "summary" => revision.summary.presence,
+      "host" => host,
+      "slug" => slug,
+      "canonical_url" => canonical_url,
+      "created_at" => revision.entry.created_at.iso8601,
+      "updated_at" => revision.entry.updated_at.iso8601,
+      "published_at" => revision.published_at.iso8601,
+      "publisher" => publisher,
+      "author" => author,
+      "credits" => revision.credits.presence
     }
   end
 
   def defaults
     {
-      about: {
-        name: 'Scrollytelling',
-        authors: ['Joost Baaij'],
-        email: ['joost@spacebabies.nl'],
-        homepage: 'https://www.scrollytelling.com',
-        license: "https://creativecommons.org/licenses/by/4.0/"
+      "about" => {
+        "name" => 'Scrollytelling',
+        "authors" => ['Joost Baaij'],
+        "email" => ['joost@spacebabies.nl'],
+        "homepage" => 'https://www.scrollytelling.com',
+        "license" => "https://creativecommons.org/licenses/by/4.0/"
       },
-      account: entry.account.name,
-      entries: [],
-      export_at: Time.current.iso8601,
-      export_format: '1.0.0'
+      "account" => entry.account.name,
+      "entries" => [],
+      "export_at" => Time.current.iso8601,
+      "export_format" => '1.0.0'
     }
   end
 
@@ -65,10 +69,6 @@ class Export
     entry.publisher.presence
   end
 
-  def published_at
-    revision.published_at.iso8601
-  end
-
   def author
     author = entry.author.presence
     author unless author == 'Scrollytelling'
@@ -89,6 +89,7 @@ Pageflow::Revision
 
     attributes = File.exist?(index) ? JSON.parse(File.read(index)) : export.defaults
     attributes['entries'].push export.attributes
+    attributes['entries'].sort_by! { |entry| entry['title'] }
 
     File.open(index, 'wt') do |file|
       file.write(JSON.pretty_generate(attributes))

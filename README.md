@@ -4,7 +4,19 @@ Download an entire scrollytelling to a folder, with all media included.
 
 # USAGE
 
-After you've cloned this repository, do this:
+After you've cloned this repository, do this.
+
+# 🥇
+
+First order of business: generate an `index.json` for each published
+story. This file is going to be the main entry point for each story.
+
+``` bash
+cd ${one dir above the future web roots}
+${SCROLLY_HOME}/bin/rails runner ${EXPORT_HOME}/published_entry/entries.rb
+```
+
+When that's done, you should have one folder for every Scrollytelling account.
 
 ``` bash
 cd files
