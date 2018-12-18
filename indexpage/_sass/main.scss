@@ -28,6 +28,10 @@ $primary-invert: $pink-invert;
 
 @import "../node_modules/bulma/bulma";
 
+img {
+  border-width: 0;
+}
+
 #scrollies {
   ol.list {
     list-style: none;

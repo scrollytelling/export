@@ -1,32 +1,72 @@
 require 'fileutils'
 require 'json'
 
-# Transmorphs a Pageflow::Entry into attributes we want.
+# Transmorphs a Pageflow::Revision into attributes we want.
 class Export
   include Pageflow::Engine.routes.url_helpers
 
-  attr_reader :entry
+  attr_reader :entry, :revision
 
-  def initialize(entry)
-    @entry = entry
+  def initialize(revision)
+    @revision = revision
+    @entry = Pageflow::PublishedEntry.new(revision.entry, revision)
   end
 
   def attributes
     {
-      locale: entry.locale,
-      title: entry.title,
+      locale: locale,
+      title: title,
+      slug: slug,
+      canonical_url: canonical_url,
+      publisher: publisher,
+      published_at: published_at,
       host: host,
-      slug: entry.slug,
-      canonical_url: short_entry_url(entry.to_model, host: host, protocol: 'https'),
-      keywords: entry.keywords.presence,
-      author: entry.author.presence,
-      publisher: entry.publisher.presence,
-      published_at: entry.revision.published_at.iso8601
+      author: author
     }
+  end
+
+  def defaults
+    {
+      about: {
+        name: 'Scrollytelling',
+        authors: ['Joost Baaij'],
+        email: ['joost@spacebabies.nl'],
+        homepage: 'https://www.scrollytelling.com',
+        license: "https://creativecommons.org/licenses/by/4.0/"
+      },
+      account: entry.account.name,
+      entries: [],
+      export_at: Time.current.iso8601,
+      export_format: '1.0.0'
+    }
+  end
+
+  def locale
+    entry.locale
+  end
+
+  def title
+    entry.title
+  end
+
+  def slug
+    entry.slug
   end
 
   def host
     entry.account.default_theming.cname.presence || 'app.scrollytelling.io'
+  end
+
+  def canonical_url
+    short_entry_url(entry.to_model, host: host, protocol: 'https')
+  end
+
+  def publisher
+    entry.publisher.presence
+  end
+
+  def published_at
+    revision.published_at.iso8601
   end
 
   def author
@@ -36,23 +76,18 @@ class Export
 end
 
 Pageflow::Revision
+  .joins(:entry)
   .published
   .order(:title)
   .each do |revision|
-    next if revision.entry.blank?
 
-    entry = Pageflow::PublishedEntry.new(revision.entry, revision)
-    export = Export.new(entry)
+    export = Export.new(revision)
+    puts export.canonical_url
 
-    path = "#{export.attributes[:host]}/#{export.attributes[:slug]}"
-    puts path
-    FileUtils.mkdir_p path
+    FileUtils.mkdir_p [export.host, export.slug].join('/')
+    index = [export.host, 'index.json'].join('/')
 
-    defaults = { account: entry.account.name, export_at: Time.current.iso8601, export_version: '1.0.0' }
-    index = "#{export.attributes[:host]}/index.json"
-    json = File.exist?(index) ? File.read(index) : JSON.pretty_generate(defaults)
-    attributes = JSON.parse(json)
-    attributes['entries'] ||= []
+    attributes = File.exist?(index) ? JSON.parse(File.read(index)) : export.defaults
     attributes['entries'].push export.attributes
 
     File.open(index, 'wt') do |file|
