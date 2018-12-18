@@ -27,6 +27,7 @@ end
 
 Pageflow::Revision
   .published
+  .order(:title)
   .each do |revision|
     next if revision.entry.blank?
 
@@ -34,7 +35,7 @@ Pageflow::Revision
     host = story.account.default_theming.cname.presence || 'app.scrollytelling.io'
     puts "#{host}/#{story.slug}"
     FileUtils.mkdir_p "#{host}/#{story.slug}"
-    vars_path = "#{host}/vars.json"
+    vars_path = "#{host}/index.json"
 
     json = File.exist?(vars_path) ? File.read(vars_path) : '{}'
     vars = JSON.parse(json)

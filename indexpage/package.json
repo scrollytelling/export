@@ -27,8 +27,8 @@
     "js-build": "babel _javascript --out-dir overview/js",
     "js-watch": "npm run js-build -- --watch",
     "start": "npm run css-watch | npm run js-watch | npm run html-watch",
-    "html-build": "pug --obj ../entries/hu.scrollytelling.io/vars.json --pretty index.pug",
-    "deploy-static": "npm run build && rm -rf ../entries/hu.scrollytelling.io/overview && mv overview ../entries/hu.scrollytelling.io/ && cp index.html humans.txt ../entries/hu.scrollytelling.io/",
+    "html-build": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
+    "deploy": "npm run build && rm -rf ../entries/hu.scrollytelling.io/overview && mv overview ../entries/hu.scrollytelling.io/ && cp index.html humans.txt ../entries/hu.scrollytelling.io/",
     "html-watch": "npm run html-build -- --watch"
   },
   "keywords": [
