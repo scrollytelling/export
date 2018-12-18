@@ -11,7 +11,9 @@ browser.text_field(label: 'Email*').set 'joost@spacebabies.nl'
 browser.text_field(label: 'Password*').set '9tzRFz9TS9eH'
 browser.button(value: 'Login').click
 
-Dir.glob("../entries/hu.scrollytelling.io/*").each do |path|
+account = 'scroll.lab.nos.nl'
+
+Dir.glob("../entries/#{account}/*").each do |path|
   next if path[/scrollytelling\.com\z/]
   next if path[/scrollytelling\.link\z/]
 
