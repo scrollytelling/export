@@ -1,17 +1,11 @@
 {
   "name": "scrollies",
+  "private": true,
   "version": "1.0.0",
   "description": "Archive of Scrollytellings",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^7.1.5",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-es2015-ie": "^6.7.0",
     "bulma": "^0.6.0",
     "node-sass": "^4.5.3",
     "postcss-cli": "^4.1.1",
@@ -19,16 +13,16 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "css-build": "node-sass _sass/main.scss overview/css/main.css",
+    "css-build": "node-sass _sass/main.scss css/main.css",
     "css-deploy": "npm run css-build && npm run css-postcss",
-    "css-postcss": "postcss --use autoprefixer --output overview/css/main.css overview/css/main.css",
+    "css-postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
     "css-watch": "npm run css-build -- --watch",
-    "build": "npm run css-deploy && npm run js-build && npm run html-build",
-    "js-build": "babel _javascript --out-dir overview/js",
-    "js-watch": "npm run js-build -- --watch",
-    "start": "npm run css-watch | npm run js-watch | npm run html-watch",
+    "build": "npm run css-deploy && npm run build:js && npm run html-build",
+    "build:js": "echo",
+    "watch:js": "npm run build:js -- --watch",
+    "start": "npm run css-watch | npm run watch:js | npm run html-watch",
     "html-build": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
-    "deploy": "npm run build && rm -rf ../entries/hu.scrollytelling.io/overview && mv overview ../entries/hu.scrollytelling.io/ && cp index.html humans.txt ../entries/hu.scrollytelling.io/",
+    "deploy": "npm run build && rm -rf ../entries/hu.scrollytelling.io/js ../entries/hu.scrollytelling.io/css && cp -r css index.html humans.txt js ../entries/hu.scrollytelling.io",
     "html-watch": "npm run html-build -- --watch"
   },
   "keywords": [

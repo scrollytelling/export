@@ -1,27 +1,37 @@
 require 'fileutils'
 require 'json'
 
-class Story
+# Transmorphs a Pageflow::Entry into attributes we want.
+class Export
   include Pageflow::Engine.routes.url_helpers
 
-  attr_reader :story
+  attr_reader :entry
 
-  def initialize(story)
-    @story = story
+  def initialize(entry)
+    @entry = entry
   end
 
-  def to_h
-    host = story.account.default_theming.cname.presence || 'app.scrollytelling.io'
-
+  def attributes
     {
-      locale: story.locale,
-      title: story.title,
-      keywords: story.keywords.presence || Pageflow.config.default_keywords_meta_tag,
-      author: story.author.presence || Pageflow.config.default_author_meta_tag,
-      publisher: story.publisher.presence || Pageflow.config.default_publisher_meta_tag,
-      canonical_url: short_entry_url(story.to_model, host: host, scheme: 'https'),
-      published_at: story.revision.published_at.iso8601
+      locale: entry.locale,
+      title: entry.title,
+      host: host,
+      slug: entry.slug,
+      canonical_url: short_entry_url(entry.to_model, host: host, protocol: 'https'),
+      keywords: entry.keywords.presence,
+      author: entry.author.presence,
+      publisher: entry.publisher.presence,
+      published_at: entry.revision.published_at.iso8601
     }
+  end
+
+  def host
+    entry.account.default_theming.cname.presence || 'app.scrollytelling.io'
+  end
+
+  def author
+    author = entry.author.presence
+    author unless author == 'Scrollytelling'
   end
 end
 
@@ -31,20 +41,21 @@ Pageflow::Revision
   .each do |revision|
     next if revision.entry.blank?
 
-    story = Pageflow::PublishedEntry.new(revision.entry, revision)
-    host = story.account.default_theming.cname.presence || 'app.scrollytelling.io'
-    puts "#{host}/#{story.slug}"
-    FileUtils.mkdir_p "#{host}/#{story.slug}"
-    vars_path = "#{host}/index.json"
+    entry = Pageflow::PublishedEntry.new(revision.entry, revision)
+    export = Export.new(entry)
 
-    json = File.exist?(vars_path) ? File.read(vars_path) : '{}'
-    vars = JSON.parse(json)
-    vars['account'] ||= story.account.name
-    vars['entries'] ||= []
+    path = "#{export.attributes[:host]}/#{export.attributes[:slug]}"
+    puts path
+    FileUtils.mkdir_p path
 
-    vars['entries'].push Story.new(story).to_h
+    defaults = { account: entry.account.name, export_at: Time.current.iso8601, export_version: '1.0.0' }
+    index = "#{export.attributes[:host]}/index.json"
+    json = File.exist?(index) ? File.read(index) : JSON.pretty_generate(defaults)
+    attributes = JSON.parse(json)
+    attributes['entries'] ||= []
+    attributes['entries'].push export.attributes
 
-    File.open(vars_path, 'wt') do |file|
-      file.write(JSON.pretty_generate(vars))
+    File.open(index, 'wt') do |file|
+      file.write(JSON.pretty_generate(attributes))
     end
 end

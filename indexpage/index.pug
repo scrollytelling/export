@@ -4,8 +4,8 @@ html(lang="en")
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
     meta(name="viewport" content="width=device-width, initial-scale=1")
-    title #{account} Scrollytellings
-    link(rel="stylesheet" href="overview/css/main.css")
+    title #{account} #{account} Scrollytelling archive
+    link(rel="stylesheet" href="css/main.css")
       
   body
     section.hero.is-medium.is-primary.is-bold
@@ -13,8 +13,8 @@ html(lang="en")
         .container
           .columns
             .column.is-8-desktop.is-offset-2-desktop
-              h1.title.is-2.is-spaced #{account} Scrollytellings
-              h2.subtitle.is-4 Subtitle
+              h1.title.is-2.is-spaced= account
+              h2.subtitle.is-4 Scrollytelling archive
     
     section.section
       .container
@@ -25,7 +25,13 @@ html(lang="en")
                 each entry in entries
                   li
                     h2.title= entry.title
-                    h3.subtitle= entry.author
+                    h3.subtitle
+                      ol
+                        if entry.published_at
+                          li
+                            time(datetime=entry.published_at)= entry.published_at
+                        if entry.author
+                          li= entry.author
                     
     footer.footer.has-text-centered
       .container
@@ -33,4 +39,5 @@ html(lang="en")
           .column.is-8-desktop.is-offset-2-desktop
             p Made by us.
             
-    script(src="overview/js/main.js")
+    script(src="js/moment-with-locales.js")
+    script(src="js/main.js")

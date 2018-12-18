@@ -6,5 +6,5 @@ npm install
 npm start
 
 # when done, write the indexpage to a Scrollytelling archive
-npm deploy
+npm run deploy
 ```
