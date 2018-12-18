@@ -27,3 +27,28 @@ $primary-invert: $pink-invert;
 */
 
 @import "../node_modules/bulma/bulma";
+
+#scrollies {
+  ol.list {
+    list-style: none;
+    margin-left: 0;
+
+    li {
+      margin-bottom: 2em;
+    }
+  }
+
+  ul.inline {
+    list-style: none;
+    margin-left: 0;
+
+    li {
+      display: inline-block;
+    }
+
+    li + li {
+      margin-left: 1em;
+    }
+  }
+
+}

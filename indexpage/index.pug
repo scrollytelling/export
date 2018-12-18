@@ -4,7 +4,7 @@ html(lang="en")
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
     meta(name="viewport" content="width=device-width, initial-scale=1")
-    title #{account} #{account} Scrollytelling archive
+    title #{account} #{account} Scrollytelling archief
     link(rel="stylesheet" href="css/main.css")
       
   body
@@ -21,23 +21,35 @@ html(lang="en")
         .columns
           .column.is-8-desktop.is-offset-2-desktop
             .content
-              ul.list
-                each entry in entries
-                  li
-                    h2.title= entry.title
-                    h3.subtitle
-                      ol
-                        if entry.published_at
-                          li
-                            time(datetime=entry.published_at)= entry.published_at
-                        if entry.author
-                          li= entry.author
+              #scrollies
+                .field.is-grouped
+                  p.control
+                    input.input.search(type="search" placeholder="Zoek titel of auteur")
+                .field.is-grouped
+                  p.control
+                    button.button.is-light.sort(data-sort="title") Sorteer op titel
+                    button.button.is-light.sort(data-sort="author") Sorteer op auteur
+                    button.button.is-light.sort(data-sort="published") Sorteer op datum
+
+                ol.list
+                  each entry in entries
+                    li
+                      h2.title
+                        a(href=entry.slug)= entry.title
+                      h3.subtitle
+                        ul.inline
+                          if entry.published_at
+                            li
+                              time.published(datetime=entry.published_at)= entry.published_at
+                          if entry.author
+                            li.author= entry.author
                     
     footer.footer.has-text-centered
       .container
         .columns
           .column.is-8-desktop.is-offset-2-desktop
-            p Made by us.
+            p Dit is een archief van verhalen die gemaakt zijn met Scrollytelling. Scrollytelling zelf is er niet meer, maar dit archief is er gelukkig nog wel.
             
     script(src="js/moment-with-locales.js")
+    script(src="js/list.min.js")
     script(src="js/main.js")

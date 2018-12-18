@@ -6,3 +6,7 @@ for(var i=0; i<times.length; i++) {
   var published = moment(datetime)
   times[i].innerHTML = published.format("dddd D MMMM YYYY, h:mm:ss")
 }
+
+var entries = new List('scrollies', {
+  valueNames: ['title', 'author', 'published']
+})
