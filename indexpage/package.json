@@ -22,7 +22,7 @@
     "watch:js": "npm run build:js -- --watch",
     "start": "npm run css-watch | npm run watch:js | npm run html-watch",
     "html-build": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
-    "deploy": "npm run build && rm -rf ../entries/hu.scrollytelling.io/js ../entries/hu.scrollytelling.io/css && cp -r css index.html humans.txt js ../entries/hu.scrollytelling.io",
+    "deploy": "deploy.sh",
     "html-watch": "npm run html-build -- --watch"
   },
   "keywords": [
