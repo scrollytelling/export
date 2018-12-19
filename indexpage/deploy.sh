@@ -200,7 +200,8 @@ _simple() {
   for account in ../entries/*
   do
     rm -rf "${account}/js" "${account}/css"
-    cp -r css index.html humans.txt js ${account}
+    cp -r index.html humans.txt css js ${account}
+    gzip --force --recursive --keep "${account}/index.html" "${account}/humans.txt" css js
   done
 }
 

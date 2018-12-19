@@ -40,6 +40,7 @@ class Export
         "authors" => ['Joost Baaij'],
         "emails" => ['joost@spacebabies.nl'],
         "homepage" => 'https://www.scrollytelling.com',
+        "repository" => 'https://github.com/scrollytelling/export',
         "license" => "https://creativecommons.org/licenses/by/4.0/",
         "terms" => "License applies to archive data only. Story content: copyright #{account.name} #{years.join(', ')}. All rights reserved."
       },
