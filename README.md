@@ -24,13 +24,18 @@ Time to fetch all those sweet media files.
 
 # 🥈
 
+Next we need to scrape Scrollytelling admin for media files. Because this
+tends to get very big, it is done per account. All variables need to be passed
+to the script on the command line.
+
 ``` bash
-cd files
-ruby scrape.rb
+cd step_2_scrape_media
+ACCOUNT=app.scrollytelling.com EMAIL=admin@scrollytelling.com PASSWORD=letmeinplease ruby scrape.rb
 ```
 
-This will sync all the media straight from S3. It will write a manifest into
-the `index.json` of each archive, too.
+This will sync all the media straight from S3. It assumes a `../entries` directory
+exists, with account directories under it. It will write a manifest of all
+media it finds into the `index.json` of each archive, too.
 
 # RESULTS!
 

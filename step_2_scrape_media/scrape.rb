@@ -7,11 +7,11 @@ require 'find'
 browser = Watir::Browser.new :chrome, headless: true
 browser.goto 'https://app.scrollytelling.io/admin/login'
 
-browser.text_field(label: 'Email*').set 'joost@spacebabies.nl'
-browser.text_field(label: 'Password*').set '9tzRFz9TS9eH'
+browser.text_field(label: 'Email*').set ENV.fetch('EMAIL', 'joost@spacebabies.nl')
+browser.text_field(label: 'Password*').set ENV.fetch('PASSWORD')
 browser.button(value: 'Login').click
 
-account = 'scroll.lab.nos.nl'
+account = ENV.fetch('ACCOUNT', 'app.scrollytelling.com')
 
 Dir.glob("../entries/#{account}/*").each do |path|
 
@@ -50,7 +50,7 @@ Dir.glob("../entries/#{account}/*").each do |path|
     entry = index['entries'].find { |entry| entry['slug'] == slug }
     next if entry.nil?
 
-    entry[filetype] = files
+    entry[filetype] = files.slice('id', 'file_name', 'rights', 'width', 'height', 'original_url')
     File.open("../entries/#{account}/index.json", 'wt') do |file|
       file.write JSON.pretty_generate(index)
     end
@@ -77,7 +77,7 @@ Dir.glob("../entries/#{account}/*").each do |path|
       .gsub('href="/entries', 'href="/scrollytelling.link/entries')
   end
 
-  system("/bin/gzip --force --keep #{path}/index.html #{path}/index.json")
+  system("/bin/gzip --force --keep #{path}/index.html")
   FileUtils.mkdir_p "#{path}/../scrollytelling.link"
   FileUtils.cp_r '../assets', "#{path}/../scrollytelling.link"
 
