@@ -5,11 +5,12 @@ require 'json'
 class Export
   include Pageflow::Engine.routes.url_helpers
 
-  attr_reader :entry, :revision
+  attr_reader :account, :entry, :revision
 
   def initialize(revision)
     @revision = revision
     @entry = Pageflow::PublishedEntry.new(revision.entry, revision)
+    @account = entry.account
   end
 
   def attributes
@@ -20,6 +21,9 @@ class Export
       "host" => host,
       "slug" => slug,
       "canonical_url" => canonical_url,
+      "audio_files" => [],
+      "image_files" => [],
+      "video_files" => [],
       "created_at" => revision.entry.created_at.iso8601,
       "updated_at" => revision.entry.updated_at.iso8601,
       "published_at" => revision.published_at.iso8601,
@@ -31,14 +35,16 @@ class Export
 
   def defaults
     {
-      "about" => {
-        "name" => 'Scrollytelling',
+      "about_this_archive" => {
+        "summary" => "Collection of Scrollytelling multimedia stories, converted to static HTML.",
         "authors" => ['Joost Baaij'],
-        "email" => ['joost@spacebabies.nl'],
+        "emails" => ['joost@spacebabies.nl'],
         "homepage" => 'https://www.scrollytelling.com',
-        "license" => "https://creativecommons.org/licenses/by/4.0/"
+        "license" => "https://creativecommons.org/licenses/by/4.0/",
+        "terms" => "License applies to archive data only. Story content: copyright #{account.name} #{years.join(', ')}. All rights reserved."
       },
-      "account" => entry.account.name,
+      "account" => account.name,
+      "years" => years,
       "entries" => [],
       "export_at" => Time.current.iso8601,
       "export_format" => '1.0.0'
@@ -58,11 +64,15 @@ class Export
   end
 
   def host
-    entry.account.default_theming.cname.presence || 'app.scrollytelling.io'
+    account.default_theming.cname.presence || 'app.scrollytelling.io'
   end
 
   def canonical_url
     short_entry_url(entry.to_model, host: host, protocol: 'https')
+  end
+
+  def years
+    @years ||= account.entries.pluck('year(created_at)').sort.uniq
   end
 
   def publisher

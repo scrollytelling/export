@@ -14,36 +14,49 @@ browser.button(value: 'Login').click
 account = 'scroll.lab.nos.nl'
 
 Dir.glob("../entries/#{account}/*").each do |path|
-  next if path[/scrollytelling\.com\z/]
-  next if path[/scrollytelling\.link\z/]
 
+  host, slug = path.split('/')[2,2]
+  next if slug.include? '.'
   puts
   puts "== path: #{path}"
-  dirs = path.split('/')
 
-  bucket_object = /\w*\.scrollytelling\.com.*\d{3}\/\d{3}/
+  match_bucket = /\w*\.scrollytelling\.com.*\d{3}\/\d{3}/
 
   %w(video_files image_files audio_files).each do |filetype|
-    browser.goto "https://app.scrollytelling.io/editor/entries/#{dirs[-1]}/files/#{filetype}.json"
+    browser.goto "https://app.scrollytelling.io/editor/entries/#{slug}/files/#{filetype}.json"
+    files = JSON.parse(browser.text)
 
-    JSON.parse(browser.text).each do |file|
+    files.each do |file|
       if (url = file['url'])
-        bucket = url[bucket_object]
+        bucket = url[match_bucket]
         system("aws s3 sync s3://#{bucket} #{path}/../#{bucket}")
       end
 
       if (poster_url = file['poster_url'])
-        bucket = poster_url[bucket_object]
+        bucket = poster_url[match_bucket]
         system("aws s3 sync s3://#{bucket} #{path}/../#{bucket}")
+      end
+
+      file['sources']&.each do |source|
+        if (src_url = source['src'])
+          bucket = src_url[match_bucket]
+          source = bucket.sub('output.scrollytelling.com', 'storyboard-pageflow-production-out')
+          system("aws s3 sync s3://#{source} #{path}/../#{bucket}")
+        end
       end
     end
 
-    File.open("#{path}/#{filetype}.json", 'wt') do |file|
-      file.write browser.text
+    index = JSON.parse(File.read("../entries/#{account}/index.json"))
+    entry = index['entries'].find { |entry| entry['slug'] == slug }
+    next if entry.nil?
+
+    entry[filetype] = files
+    File.open("../entries/#{account}/index.json", 'wt') do |file|
+      file.write JSON.pretty_generate(index)
     end
   end
 
-  browser.goto "https://#{dirs[-2]}/#{dirs[-1]}"
+  browser.goto ['https:/', host, slug].join('/')
 
   entry_css_link = browser.element(tag_name: 'link', data_name: 'entry')
   if entry_css_link.exists?
@@ -64,7 +77,7 @@ Dir.glob("../entries/#{account}/*").each do |path|
       .gsub('href="/entries', 'href="/scrollytelling.link/entries')
   end
 
-  system("/bin/gzip --force --keep #{path}/index.html")
+  system("/bin/gzip --force --keep #{path}/index.html #{path}/index.json")
   FileUtils.mkdir_p "#{path}/../scrollytelling.link"
   FileUtils.cp_r '../assets', "#{path}/../scrollytelling.link"
 

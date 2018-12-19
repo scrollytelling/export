@@ -13,15 +13,24 @@ story. This file is going to be the main entry point for each story.
 
 ``` bash
 cd ${one dir above the future web roots}
-${SCROLLY_HOME}/bin/rails runner ${EXPORT_HOME}/published_entry/entries.rb
+${SCROLLY_HOME}/bin/rails runner ${EXPORT_HOME}/step_1_build_index/published_entries.rb
 ```
 
 When that's done, you should have one folder for every Scrollytelling account.
+
+Inside those folders should be one folder for every published story. Good? We good.
+
+Time to fetch all those sweet media files.
+
+# 🥈
 
 ``` bash
 cd files
 ruby scrape.rb
 ```
+
+This will sync all the media straight from S3. It will write a manifest into
+the `index.json` of each archive, too.
 
 # RESULTS!
 

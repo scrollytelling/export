@@ -2,7 +2,7 @@
   "name": "scrollies",
   "private": true,
   "version": "1.0.0",
-  "description": "Archive of Scrollytellings",
+  "description": "Scrollytelling archive builder",
   "dependencies": {},
   "devDependencies": {
     "autoprefixer": "^7.1.5",
