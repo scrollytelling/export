@@ -6,5 +6,5 @@ Contains scripts to download all media assets for a single account.
 
 ``` shell
 bundle install
-ACCOUNT=scroll.lab.nos.nl EMAIL=admin@scrollytelling.com PASSWORD=letmein ruby scrape.rb
+ACCOUNT=account.scrollytelling.com EMAIL=admin@scrollytelling.com PASSWORD=letmein ruby scrape.rb
 ```

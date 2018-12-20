@@ -4,7 +4,7 @@ html(lang="en")
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible" content="IE=edge")
     meta(name="viewport" content="width=device-width, initial-scale=1")
-    title #{account} #{account} Scrollytelling archief
+    title #{account.name} Scrollytelling archief
     link(rel="stylesheet" href="css/main.css")
       
   body
@@ -13,7 +13,7 @@ html(lang="en")
         .container
           .columns
             .column.is-8-desktop.is-offset-2-desktop
-              h1.title.is-2.is-spaced= account
+              h1.title.is-2.is-spaced= account.name
               h2.subtitle.is-4 Scrollytelling archief
     
     section.section
@@ -33,14 +33,13 @@ html(lang="en")
 
                 ol.list
                   each entry in entries
-                    li
+                    li(lang=entry.locale)
                       h2.title
                         a(href=entry.slug)= entry.title
                       h3.subtitle
                         ul.inline
-                          if entry.published_at
-                            li
-                              time.published(datetime=entry.published_at)= entry.published_at
+                          li
+                            time.published(datetime=entry.published_at)= entry.published_at
                           if entry.author
                             li.author= entry.author
                     

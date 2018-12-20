@@ -21,8 +21,8 @@
     "build:js": "echo",
     "watch:js": "npm run build:js -- --watch",
     "start": "npm run css-watch | npm run watch:js | npm run html-watch",
-    "html-build": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
-    "deploy": "deploy.sh",
+    "html-build": "pug --obj ../entries/binnestebuiten.younginprison.nl/index.json --pretty index.pug",
+    "deploy": "npm run build | bash ./deploy.sh",
     "html-watch": "npm run html-build -- --watch"
   },
   "keywords": [

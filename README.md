@@ -1,5 +1,7 @@
 Download an entire scrollytelling to a folder, with all media included.
 
+It will become a plain old static HTML website that you can put on almost anything. (Maybe not your shoes, but do try!)
+
 📗🌇📽🎹 ➡️➡️➡️ 💾📂
 
 # USAGE
@@ -8,10 +10,10 @@ After you've cloned this repository, do this.
 
 # 🥇
 
-First order of business: generate an `index.json` for each published
+First order of business: you will want to have an `index.json` for each published
 story. This file is going to be the main entry point for each story.
 
-``` bash
+``` shell
 cd ${one dir above the future web roots}
 ${SCROLLY_HOME}/bin/rails runner ${EXPORT_HOME}/step_1_build_index/published_entries.rb
 ```
@@ -28,7 +30,7 @@ Next we need to scrape Scrollytelling admin for media files. Because this
 tends to get very big, it is done per account. All variables need to be passed
 to the script on the command line.
 
-``` bash
+``` shell
 cd step_2_scrape_media
 ACCOUNT=app.scrollytelling.com EMAIL=admin@scrollytelling.com PASSWORD=letmeinplease ruby scrape.rb
 ```
@@ -37,13 +39,24 @@ This will sync all the media straight from S3. It assumes a `../entries` directo
 exists, with account directories under it. It will write a manifest of all
 media it finds into the `index.json` of each archive, too.
 
+# 🥉
+
+Last order of business is to generate a nice indexpage for the entire account.
+Also, a RSS feed is added.
+
+``` shell
+cd step_3_account_index
+npm install
+npm run deploy
+```
+
 # RESULTS!
 
 A folder, named after the hostname of the story, will have been created.
 
 Too see the results of your leeching:
 
-``` bash
+``` shell
 cd <hostname of the story>
 http-server # let's assume you have nodejs installed... use python -m HTTPServer otherwise
 ```
@@ -52,22 +65,30 @@ When you open the inspector, all elements should come from localhost. File a bug
 
 # CAVEATS
 
-### List of stories
-
-At the moment we rely on a static list of stories in `published_entries`. If stories
-are missing, update that file and rerun everything.
-
 ### s3 output bucket 📂
 
 You're gonna need access to our media buckets on S3. We need it to sync all of the files,
 because the page sources does not contain links to everything.
 
-# LONG-TERM STORAGE
+# TRANSFER, TOOT TOOT!
 
-Let's go with S3 for this one! Pretend we want to store `houdenvan.edvanderelsken.amsterdam`:
+In all seriousness, where to put everything?!
 
-``` bash
-aws s3 sync houdenvan.edvanderelsken.amsterdam "s3://your-bucket-name/houdenvan.edvanderelsken.amsterdam/" --cache-control "public, max-age=31536000"
+Let's go with **S3** for this one! Pretend we want to store `account.scrollytelling.com`:
+
+``` shell
+aws s3 sync account.scrollytelling.com "s3://your-bucket-name/account.scrollytelling.com/" --acl public-read --cache-control "public, max-age=31536000"
+```
+
+**or...**
+
+Or you might want to transfer the lot to or from a **"Cloud Server"**. Here's how.
+
+The idea is to place an entire Document Root directory on the remote.
+
+``` shell
+# this will recreate `account.scrollytelling.com` on the remote.
+rsync --compress --verbose --partial-dir=.rsync --progress --recursive --safe-links --times --human-readable account.scrollytelling.com root@example.com:/var/www
 ```
 
 # AUTHOR

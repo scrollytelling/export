@@ -4,6 +4,7 @@ GEM
     childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
     ffi (1.9.25)
+    mimemagic (0.3.2)
     mini_portile2 (2.3.0)
     nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
@@ -24,8 +25,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  mimemagic
   watir
   webdrivers
 
+RUBY VERSION
+   ruby 2.5.1p57
+
 BUNDLED WITH
-   1.16.2
+   1.17.2
