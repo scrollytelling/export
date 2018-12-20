@@ -4,11 +4,13 @@ npm install
 
 # start a local development environment
 npm start
-
-# when done, write the indexpage to a Scrollytelling archive
-npm run deploy
 ```
 
-## Copy and paste first!
+## Creating all the indexes
 
-For now you will need to hard-code the account hostname in `package.json`. DEAL!
+If you're happy with the code, there is a script to recreate account
+index pagews wholesale. Run it:
+
+``` shell
+bash deploy.sh
+```

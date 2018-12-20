@@ -13,17 +13,16 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "css-build": "node-sass _sass/main.scss css/main.css",
-    "css-deploy": "npm run css-build && npm run css-postcss",
-    "css-postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
-    "css-watch": "npm run css-build -- --watch",
-    "build": "npm run css-deploy && npm run build:js && npm run html-build",
+    "build:css": "node-sass _sass/main.scss css/main.css",
     "build:js": "echo",
+    "build:html": "pug --obj ../entries/binnestebuiten.younginprison.nl/index.json --pretty index.pug",
+    "build": "npm run deploy:css && npm run build:js && npm run build:html",
+    "deploy:css": "npm run build:css && npm run postcss",
+    "postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
+    "watch:css": "npm run build:css build:html-- --watch",
     "watch:js": "npm run build:js -- --watch",
-    "start": "npm run css-watch | npm run watch:js | npm run html-watch",
-    "html-build": "pug --obj ../entries/binnestebuiten.younginprison.nl/index.json --pretty index.pug",
-    "deploy": "npm run build | bash ./deploy.sh",
-    "html-watch": "npm run html-build -- --watch"
+    "start": "npm run watch:css | npm run watch:js | npm run watch:html",
+    "watch:html": "npm run build:html -- --watch"
   },
   "keywords": [
     "scrollytelling",

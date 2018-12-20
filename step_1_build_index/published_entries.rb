@@ -99,10 +99,9 @@ class Export
 end
 
 Pageflow::Revision
-  .joins(:entry)
-	# .where("pageflow_entries.slug" => 'binnenstebuiten')
   .published
-  .order(:title)
+  .joins(:entry)
+  .order(published_at: :desc)
   .each do |revision|
 
     export = Export.new(revision)
@@ -113,7 +112,9 @@ Pageflow::Revision
 
     attributes = File.exist?(index) ? JSON.parse(File.read(index)) : export.defaults
     attributes['entries'].push export.attributes
-    attributes['entries'].sort_by! { |entry| entry['title'] }
+
+    # Sort entries on something the database can't do:
+    # attributes['entries'].sort_by! { |entry| entry['title'] }
 
     File.open(index, 'wt') do |file|
       file.write(JSON.pretty_generate(attributes))

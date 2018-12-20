@@ -67,7 +67,6 @@ index['entries'].each do |entry|
       end
 
       file['sources']&.each do |source|
-
         if (source['src'])
           # change https://output.scroll to /output.scroll
           source['path'] = source.delete('src').sub('https:/', '')
@@ -104,25 +103,24 @@ index['entries'].each do |entry|
     end
 
     # Go into each synced file to replace hard-coded URLs. Sigh.
-    system("find #{account.root} -name '*.m3u8' -print0 | xargs -0 sed -i -e 's\\https://output.scrollytelling.io\\/output.scrollytelling.com\\g'")
-    system("find #{account.root} -name '*.mpd' -print0 | xargs -0 sed -i -e 's\\https://output.scrollytelling.io\\/output.scrollytelling.com\\g'")
-    system("find #{account.root} -name '*.css' -print0 | xargs -0 sed -i -e 's\\//scrollytelling.link\\/scrollytelling.link\\g'")
-    system("find #{account.root} -name '*.js' -print0 | xargs -0 sed -i -e 's\\//scrollytelling.link\\/scrollytelling.link\\g'")
+    system("find #{account.root} -name '*.m3u8' -print0 | xargs -0r sed -i -e 's\\https://output.scrollytelling.io\\/output.scrollytelling.com\\g'")
+    system("find #{account.root} -name '*.mpd' -print0 | xargs -0r sed -i -e 's\\https://output.scrollytelling.io\\/output.scrollytelling.com\\g'")
+    system("find #{account.root} -name '*.css' -print0 | xargs -0r sed -i -e 's\\//scrollytelling.link\\/scrollytelling.link\\g'")
+    system("find #{account.root} -name '*.js' -print0 | xargs -0r sed -i -e 's\\//scrollytelling.link\\/scrollytelling.link\\g'")
 
     account.index.write(JSON.pretty_generate(index), mode: 'wt')
   end
 
   browser.goto ['https:/', host, slug].join('/')
-  File.open(account.root.join(slug, 'index.html', 'wt') do |file|
-    file.write browser
-      .html
-      .gsub('https://scrollytelling.link', '/scrollytelling.link')
-      .gsub('http://media.scrollytelling.com', '/media.scrollytelling.com')
-      .gsub('https://media.scrollytelling.com', '/media.scrollytelling.com')
-      .gsub('https://output.scrollytelling.com', '/output.scrollytelling.com')
-      .gsub('href="/entries', 'href="/scrollytelling.link/entries')
-      .gsub('link rel="stylesheet" media="all"', 'link rel="preload" as="style" media="all"')
-  end
+  story_index = account.root.join(slug, 'index.html')
+  story_index.write(browser
+    .html
+    .gsub('https://scrollytelling.link', '/scrollytelling.link')
+    .gsub('http://media.scrollytelling.com', '/media.scrollytelling.com')
+    .gsub('https://media.scrollytelling.com', '/media.scrollytelling.com')
+    .gsub('https://output.scrollytelling.com', '/output.scrollytelling.com')
+    .gsub('href="/entries', 'href="/scrollytelling.link/entries'),
+  mode: 'wt')
 
   entry_css_link = browser.element(tag_name: 'link', data_name: 'entry')
   if entry_css_link.exists?
@@ -130,10 +128,7 @@ index['entries'].each do |entry|
 
     browser.goto entry_css_link.attribute_value('href')
     entry_css_path = account.assets_path.join('entries', "#{slug}.css")
-    entry_css_path.write browser
-      .text
-      .gsub('https:/', ''),
-      mode: 'wt'
+    entry_css_path.write(browser.text.gsub('https:/', ''), mode: 'wt')
   end
 
   system("/bin/gzip --force --keep #{account.index} #{account.root.join(slug, 'index.html')}")
@@ -141,7 +136,7 @@ index['entries'].each do |entry|
   FileUtils.mkdir_p account.assets_path
   FileUtils.cp_r '../assets', account.assets_path
   FileUtils.mkdir_p account.output_path
-  FileUtils.cp_r '../outputs', account.output_path
+  FileUtils.cp_r '../outputs/*', account.output_path
 
   puts # newline to separate stories in the output
 end
