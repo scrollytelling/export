@@ -21,40 +21,45 @@ html(lang="nl")
       .container
         .columns
           .column.is-8-desktop.is-offset-2-desktop
-            .content
-              #scrollies
-                .field.is-grouped
-                  p.control
-                    input.input.search(type="search" placeholder="Zoek titel of auteur")
-                .field.is-grouped
-                  p.control
-                    button.button.is-light.sort(data-sort="title") Sorteer op titel
-                    button.button.is-light.sort(data-sort="author") Sorteer op auteur
-                    button.button.is-light.sort(data-sort="published") Sorteer op datum
+            .content#scrollies
+              .field
+                label.label Zoek titel of auteur
+                .control
+                  input.input.search(type="search" placeholder="Abby Rozenhofje")
+              .field
+                label.label Sorteer op:
+                .control
+                  button.button.is-light.sort(data-sort="title") Titel
+                  button.button.is-light.sort(data-sort="author") Auteur
+                  button.button.is-light.sort(data-sort="published") Datum
 
-                ol.list
-                  each entry in entries
-                    article.media(lang=entry.locale)
-                      .media-content
-                        .content
-                          p
-                            a(href=entry.slug)= entry.title
-                            if entry.author
-                              small= entry.author
-                            small
-                              time.published(datetime=entry.published_at)= entry.published_at
+              section.list
+                each entry in entries
+                  a.scrolly.is-clearfix(lang=entry.locale href=entry.slug)
+                    p.surtitle.is-pulled-right
+                      time.published(datetime=entry.published_at)= entry.published_at
+                    h2.title= entry.title
+                    p.subtitle.is-4= entry.author
                         
     footer.footer.has-text-centered
       .container
         .columns
           .column.is-8-desktop.is-offset-2-desktop
-            p Dit is een archief van verhalen die gemaakt zijn met Scrollytelling. Scrollytelling zelf is er niet meer, maar dit archief is er gelukkig nog wel.
+            img(src="images/scrollytelling.png" alt="Scrollytelling")
 
-            a(rel="license" href="http://creativecommons.org/licenses/by/4.0/")
-              img(alt="Creative Commons License" src="https://i.creativecommons.org/l/by/4.0/88x31.png")
-            br
+            p Scrollytelling was a popular tool used for creating engaging multimedia stories. You are looking at the archive of works published on Scrollytelling by #{account.name} in the years #{account.years_active.join(', ')}. 
 
-            p <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Dataset" property="dct:title" rel="dct:type">Dit archief</span> van <a xmlns:cc="http://creativecommons.org/ns#" href="https://www.scrollytelling.com" property="cc:attributionName" rel="cc:attributionURL">Scrollytelling</a> is in licentie gegeven volgens een <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Naamsvermelding 4.0 Internationaal-licentie</a>.
+            p
+              | Curated on
+              time(datetime=info.created_at)= info.created_at
+              | by
+              each name, email in info.curators
+                a(href="mailto:#{email}")= name
+              |.
+            // archive id: #{id}
+
+            p
+              a(href="https://www.scrollytelling.com") www.scrollytelling.com
             
     script(src="js/moment-with-locales.js")
     script(src="js/list.min.js")

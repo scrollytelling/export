@@ -4,6 +4,7 @@ Bundler.require(:default)
 require 'json'
 require 'find'
 require 'pathname'
+require 'fileutils'
 require 'uri'
 
 browser = Watir::Browser.new :chrome, headless: true
@@ -15,7 +16,7 @@ browser.button(value: 'Login').click
 
 Account = Struct.new(:host) do
   def root
-    Pathname.new("../entries/#{host}")
+    Pathname.new("#{__dir__}/../entries/#{host}")
   end
   def assets_path
     root.join('scrollytelling.link')
@@ -122,6 +123,10 @@ index['entries'].each do |entry|
     .gsub('href="/entries', 'href="/scrollytelling.link/entries'),
   mode: 'wt')
 
+  %w(index.html index.json).each do |file|
+    system("/bin/gzip --force --keep #{account.root.join(file)}")
+  end
+
   entry_css_link = browser.element(tag_name: 'link', data_name: 'entry')
   if entry_css_link.exists?
     FileUtils.mkdir_p account.assets_path.join('entries')
@@ -131,12 +136,11 @@ index['entries'].each do |entry|
     entry_css_path.write(browser.text.gsub('https:/', ''), mode: 'wt')
   end
 
-  system("/bin/gzip --force --keep #{account.index} #{account.root.join(slug, 'index.html')}")
   system("/bin/gzip --force --keep --recursive #{account.assets_path.join('entries', '*.css')}")
   FileUtils.mkdir_p account.assets_path
-  FileUtils.cp_r '../assets', account.assets_path
+  FileUtils.cp_r "#{__dir__}/assets", account.assets_path
   FileUtils.mkdir_p account.output_path
-  FileUtils.cp_r '../outputs/*', account.output_path
+  FileUtils.cp_r "#{__dir__}/outputs", account.output_path
 
-  puts # newline to separate stories in the output
+  puts
 end

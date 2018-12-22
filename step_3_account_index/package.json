@@ -15,7 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "node-sass _sass/main.scss css/main.css",
     "build:js": "echo",
-    "build:html": "pug --obj ../entries/binnestebuiten.younginprison.nl/index.json --pretty index.pug",
+    "build:html": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
     "build": "npm run deploy:css && npm run build:js && npm run build:html",
     "deploy:css": "npm run build:css && npm run postcss",
     "postcss": "postcss --use autoprefixer --output css/main.css css/main.css",

@@ -39,14 +39,15 @@ class Export
     end
 
     {
-      "about_this_archive" => {
-        "summary" => "Collection of Scrollytelling multimedia stories, converted to static HTML.",
-        "authors" => ['Joost Baaij'],
-        "emails" => ['joost@spacebabies.nl'],
-        "homepage" => 'scrollytelling.com',
-        "repository" => 'https://github.com/scrollytelling/export',
-        "license" => "https://creativecommons.org/licenses/by/4.0/",
-        "terms" => "License applies to archive data only. Story content: copyright #{account.name} #{years_active.join(', ')}. All rights reserved."
+      "info" => {
+        "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
+        "created_at" => Time.current.iso8601,
+        "format" => '1.0.0',
+        "curators" => [
+          { "name" => 'Joost Baaij', "email" => 'joost@spacebabies.nl'}
+        ],
+        "homepage" => 'https://www.scrollytelling.com',
+        "repository" => 'https://github.com/scrollytelling/export'
       },
       "entries" => [],
       "account" => {
@@ -54,8 +55,7 @@ class Export
 	      "managers" => manager_names,
 	      "years_active" => years_active
       },
-      "export_at" => Time.current.iso8601,
-      "export_format" => '1.0.0'
+      "id" => SecureRandom.uuid
     }
   end
 

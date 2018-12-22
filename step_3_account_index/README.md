@@ -1,3 +1,7 @@
+# Let's Export Scrollytelling
+
+## Step 3 **(You are here)**
+
 ``` shell
 # install required software:
 npm install
