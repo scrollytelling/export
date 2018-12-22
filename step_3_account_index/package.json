@@ -7,18 +7,20 @@
   "devDependencies": {
     "autoprefixer": "^7.1.5",
     "bulma": "^0.6.0",
+    "mustache": "^3.0.1",
     "node-sass": "^4.5.3",
-    "postcss-cli": "^4.1.1",
-    "pug-cli": "^1.0.0-alpha6"
+    "postcss-cli": "^4.1.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "node-sass _sass/main.scss css/main.css",
-    "build:js": "echo",
-    "build:html": "pug --obj ../entries/hu.scrollytelling.io/index.json --pretty index.pug",
-    "build": "npm run deploy:css && npm run build:js && npm run build:html",
+    "build:css": "node-sass src/main.scss public/index.css",
+    "build:js": "cat vendor/*.js src/main.js > public/index.js",
+    "build:atom": "mustache ../entries/hu.scrollytelling.io/index.json src/index.atom.mustache > public/index.atom",
+    "build:html": "mustache ../entries/hu.scrollytelling.io/index.json src/index.html.mustache > public/index.html",
+    "build": "npm run deploy:css && npm run build:js && npm run build:html && npm run build:atom",
     "deploy:css": "npm run build:css && npm run postcss",
-    "postcss": "postcss --use autoprefixer --output css/main.css css/main.css",
+    "deploy": "npm run build && cp -r _documentroot/* public/* ../entries/hu.scrollytelling.io",
+    "postcss": "postcss --use autoprefixer --output public/index.css public/index.css",
     "watch:css": "npm run build:css build:html-- --watch",
     "watch:js": "npm run build:js -- --watch",
     "start": "npm run watch:css | npm run watch:js | npm run watch:html",

@@ -5,9 +5,11 @@ set -x
 
 for account in ../entries/*
 do
-  node-sass _sass/main.scss "${account}/css/main.css"
-  postcss --use autoprefixer --output "${account}/css/main.css" "${account}/css/main.css"
-  pug --obj "${account}/index.json" --pretty --out $account index.pug
+  node-sass ./src/main.scss "${account}/index.css"
+  postcss --use autoprefixer --output "${account}/index.css" "${account}/index.css"
+  cat ./vendor/*.js ./src/main.js > "${account}/index.js"
+  mustache "${account}/index.json" ./src/index.html.mustache > "${account}/index.html"
+  mustache "${account}/index.json" ./src/index.atom.mustache > "${account}/index.atom"
 
   mkdir -p "${account}/scrollytelling.link"
   mkdir -p "${account}/output.scrollytelling.com"
@@ -15,9 +17,7 @@ do
   cp -r ./_scrollytelling.link/* "${account}/scrollytelling.link"
   cp -r ./_output.scrollytelling.com/* "${account}/output.scrollytelling.com"
 
-  gzip --keep --force $account/css/main.css
-  gzip --keep --force $account/js/*.js
-  gzip --keep --force $account/images/*
+  gzip --keep --force $account/index.*
+  gzip --keep --force $account/images/*.png $account/images/*.svg
   gzip --keep --force $account/humans.txt
-  gzip --keep --force $account/index.html
 done

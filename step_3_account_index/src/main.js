@@ -1,4 +1,6 @@
-moment.locale('nl')
+var locale = window.navigator.userLanguage || window.navigator.language
+
+moment.locale(locale)
 
 var times = document.querySelectorAll('time')
 for(var i=0; i<times.length; i++) {
@@ -8,5 +10,12 @@ for(var i=0; i<times.length; i++) {
 }
 
 var entries = new List('scrollies', {
-  valueNames: ['title', 'author', 'published']
+  valueNames: [
+    'title',
+    'author',
+    { name: 'published', attr: 'datetime' }
+  ],
+  fuzzySearch: {
+    searchClass: 'search'
+  }
 })
