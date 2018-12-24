@@ -7,6 +7,10 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
   optimization: {
     minimizer: [
       new UglifyJsPlugin({
@@ -23,10 +27,6 @@ module.exports = {
       chunkFilename: devMode ? "[id].css" : '[id].[hash].css'
     })
   ],
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
-  },
   module: {
     rules: [
       {
@@ -39,28 +39,53 @@ module.exports = {
           }
         }
       },
-      {
-        test: / ?\.(sa|sc|c)ss$/,
-        exclude: /node_modules/,
-        use: [
-          devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              importLoaders: 1,
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: () => [
-                postcssPresetEnv()
-              ]
-            }
-          }
-        ]
-      }
+      // {
+      //   test: / ?\.(sa|sc|c)ss$/,
+      //   exclude: /node_modules/,
+      //   use: [
+      //     devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
+      //     {
+      //       loader: 'css-loader',
+      //       options: {
+      //         importLoaders: 1,
+      //       }
+      //     },
+      //     {
+      //       loader: 'postcss-loader',
+      //       options: {
+      //         ident: 'postcss',
+      //         plugins: () => [
+      //           postcssPresetEnv()
+      //         ]
+      //       }
+      //     },
+      //     'sass-loader'
+      //   ]
+      // },
+      // {
+      //     test: /\.(png|jp(e*)g|svg)$/,
+      //     use: [{
+      //         loader: 'url-loader',
+      //         options: {
+      //             limit: 8000, // Convert images < 8kb to base64 strings
+      //             name: 'images/[hash]-[name].[ext]'
+      //         }
+      //     }]
+      // },
+      // {
+      //   test: /\.html$/,
+      //   use: [
+      //     {
+      //       loader: 'mustache-loader'
+      //     },
+      //     {
+      //       loader: 'html-loader',
+      //       options: {
+      //         interpolate: true
+      //       }
+      //     }
+      //   ]
+      // }
     ]
   }
 }

@@ -22,6 +22,9 @@
   </head>
 
   <body>
+
+    <span id="top"></span>
+
     <section class="hero is-medium is-primary is-bold">
       <div class="hero-body">
         <div class="container">
@@ -60,10 +63,12 @@
               <div class="list">
                 {{#entries}}
                 <article class="media">
-                  <div class="media-left">
-                    <figure class="image">
-                      <img src="{{ slug }}/screens/{{ host }}-{{ slug }}-chrome71.jpg">
-                    </figure>
+                  <div class="media-left gallery">
+                    <a href="{{ slug }}/screens/{{ host }}-{{ slug }}-chrome71.jpg" data-caption="Yolo pagina 1">
+                      <figure class="image">
+                        <img src="{{ slug }}/screens/{{ host }}-{{ slug }}-chrome71.jpg" alt="">
+                      </figure>
+                    </a>
                   </div>
                   <div class="media-content is-clearfix">
                     <time class="published is-pulled-right" datetime="{{ published_at }}">{{ published_at }}</time>
@@ -83,25 +88,34 @@
       <div class="container">
         <div class="columns">
           <div class="column is-6-desktop">
-            <img src="images/scrollytelling.png" alt="Scrollytelling">
-            <p>Scrollytelling was Software-as-a-Service for creating engaging multimedia stories. You are looking at the archived works of {{account.name}}. The fact that we shuttered the business does not mean we drop mike
-            and walk away, does it? No, it' doesn't. We invested a lot of time in making sure these
+            <img src="./images/scrollytelling.png" alt="Scrollytelling">
+            <p class="has-text-weight-bold">Scrollytelling was Software-as-a-Service for creating engaging multimedia stories.</p>
+            <p>You are looking at the archived works of {{account.name}}. The fact that we shuttered the business does not mean we drop mike and walk away, does it? No, it' doesn't. We invested a lot of time in making sure these
           works can live on as nothing-special-static-html. A Raspberry Pi could host it!</p>
         </div>
-        <div class="column is-3-desktop">
-          <h3 class="is-1.25">Archive</h3>
-            <p>Curated on <time datetime="{{ info.created_at }}">{{ info.created_at }}</time>
-              by {{#info.curators}}<a href="mailto:{{ email }}">{{ name }}</a>{{/info.curators}}.
-            </p>
-            <p>Also available as <a href="index.atom">RSS (Atom)</a> and <a href="index.json">JSON (JavaScript)</a>.
+          <div class="column is-3-desktop">
+            <div class="content">
+              <h3>Archive</h3>
+              <p>Curated on <time datetime="{{ info.created_at }}">{{ info.created_at }}</time>
+                by {{#info.curators}}<a href="mailto:{{ email }}">{{ name }}</a>{{/info.curators}}.</p>
+              <p>Also available as <a href="index.atom">RSS (Atom)</a> and <a href="index.json">JSON (JavaScript)</a>.</p>
+            </div>
+          </div>
+          <div class="column is-3-desktop">
+          </div>
         </div>
-      </div>
-      <div class="columns">
-        <div class="column is-10-desktop is-offset-1-desktop is-text-centered">
-          <p>Life is also death. ⚰️</p>
+
+        <div class="columns" style="margin-top: 3rem; margin-bottom: 3rem;">
+          <div class="column is-12-desktop has-text-centered">
+            <p>Life is also death. ⚰️</p>
             <p><a href="https://www.scrollytelling.com">www.scrollytelling.com</a></p>
           </div>
         </div>
+
+      </div>
+
+      <div class="back-to-top">
+        <a href="#top"><span>Back to Top</span></a>
       </div>
     </footer>
     <script src="bundle.js"></script>

@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-@import 'baguettebox.js/dist/baguetteBox.min.css';
+@import '../node_modules/baguettebox.js/dist/baguetteBox.css';
 @import "../node_modules/bulma/sass/utilities/initial-variables";
 $mint: #c3e2dd;
 
@@ -33,11 +33,16 @@ $link: #133472;
   }
 }
 
+.footer {
+  position: relative;
+  padding-bottom: 10rem;
+}
+
 .back-to-top {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: .2rem;
-  color: $text-white;
+  color: $white;
   display: inline-block;
   position: absolute;
   bottom: 0;
@@ -46,16 +51,13 @@ $link: #133472;
 
   a {
     display: block;
-    background: $background-dark;
-    padding: 1.2rem 3rem 1.5rem;
-    color: $text-white;
+    background: $dark;
+    padding: 1rem 1.5rem;;
+    color: $white;
 
     &:focus,
     &:hover {
-      display: block;
-      background: $background-link;
-      padding: 1.2rem 3rem 1.5rem;
-      color: $text-white;
+      background: $link;
     }
   }
 }

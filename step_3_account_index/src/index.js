@@ -2,6 +2,9 @@ import baguetteBox from 'baguettebox.js';
 import List from 'list.js';
 import * as moment from 'moment';
 
+// import './main.scss';
+// import template from './index.html.mustache';
+
 // destroy broken images
 window.addEventListener('error', function(event) {
   console.log(event)
@@ -13,6 +16,7 @@ window.addEventListener('error', function(event) {
 var locale = window.navigator.userLanguage || window.navigator.language
 
 moment.locale(locale)
+baguetteBox.run('.gallery')
 
 var times = document.querySelectorAll('time')
 for(var i=0; i<times.length; i++) {

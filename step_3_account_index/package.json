@@ -7,6 +7,7 @@
     "baguettebox.js": "^1.11.0",
     "list.js": "^1.5.0",
     "moment": "^2.23.0",
+    "mustache-loader": "^1.4.1",
     "perfundo": "^4.0.4",
     "postcss-scss": "^2.0.0"
   },
@@ -16,6 +17,7 @@
     "autoprefixer": "^7.1.5",
     "babel-loader": "^8.0.4",
     "bulma": "^0.6.0",
+    "file-loader": "^3.0.1",
     "mini-css-extract-plugin": "^0.5.0",
     "mustache": "^3.0.1",
     "node-sass": "^4.5.3",
@@ -25,7 +27,9 @@
     "postcss-cli": "^4.1.1",
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.5.0",
+    "style-loader": "^0.23.1",
     "uglifyjs-webpack-plugin": "^2.1.0",
+    "url-loader": "^1.1.2",
     "webpack": "^4.28.2",
     "webpack-cli": "^3.1.2"
   },
