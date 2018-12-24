@@ -61,14 +61,14 @@
                 {{#entries}}
                 <article class="media">
                   <div class="media-left">
-                    <figure class="image" style="width: 148px; height: 100px;">
+                    <figure class="image">
                       <img src="{{ slug }}/screens/{{ host }}-{{ slug }}-chrome71.jpg">
                     </figure>
                   </div>
                   <div class="media-content is-clearfix">
                     <time class="published is-pulled-right" datetime="{{ published_at }}">{{ published_at }}</time>
-                    <h2 class="title" style="margin-top: 0;"><a hreflang="{{ locale }}" href="{{ slug }}">{{ title }}</a></h2>
-                    <p class="subtitle author">@{{ author }}</p></a>
+                    <h2 class="title"><a hreflang="{{ locale }}" href="{{ slug }}">{{ title }}</a></h2>
+                    {{#author}}<p class="subtitle author">@{{ author }}</p>{{/author}}
                   </div>
                 </article>
                 {{/entries}}
@@ -79,15 +79,26 @@
       </div>
     </section>
 
-    <footer class="footer has-text-centered">
+    <footer class="footer">
       <div class="container">
         <div class="columns">
-          <div class="column is-8-desktop is-offset-2-desktop"><img src="images/scrollytelling.png" alt="Scrollytelling">
-            <p>Scrollytelling was Software-as-a-Service for creating engaging multimedia stories. You are looking at the archived works of {{account.name}} published on Scrollytelling.</p>
+          <div class="column is-6-desktop">
+            <img src="images/scrollytelling.png" alt="Scrollytelling">
+            <p>Scrollytelling was Software-as-a-Service for creating engaging multimedia stories. You are looking at the archived works of {{account.name}}. The fact that we shuttered the business does not mean we drop mike
+            and walk away, does it? No, it' doesn't. We invested a lot of time in making sure these
+          works can live on as nothing-special-static-html. A Raspberry Pi could host it!</p>
+        </div>
+        <div class="column is-3-desktop">
+          <h3 class="is-1.25">Archive</h3>
             <p>Curated on <time datetime="{{ info.created_at }}">{{ info.created_at }}</time>
               by {{#info.curators}}<a href="mailto:{{ email }}">{{ name }}</a>{{/info.curators}}.
             </p>
             <p>Also available as <a href="index.atom">RSS (Atom)</a> and <a href="index.json">JSON (JavaScript)</a>.
+        </div>
+      </div>
+      <div class="columns">
+        <div class="column is-10-desktop is-offset-1-desktop is-text-centered">
+          <p>Life is also death. ⚰️</p>
             <p><a href="https://www.scrollytelling.com">www.scrollytelling.com</a></p>
           </div>
         </div>

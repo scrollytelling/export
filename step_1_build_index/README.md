@@ -7,8 +7,7 @@ Use the script to create an `index.json` for each Scrollytelling account.
 To run it:
 
 ``` shell
-# this directory will have one document root per account
-cd /var/www
-
-${scrolly_rails_root}/bin/rails runner ${export-scripts}/step_1_build_index/published_entries.rb
+zsh -x generate.zsh
 ```
+
+It assumes output dir is `../entries`.

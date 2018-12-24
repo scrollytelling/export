@@ -22,6 +22,40 @@ $link: #133472;
     }
 }
 
-.surtitle {
-    margin-left: 2em;
+.list {
+  h2.title {
+    margin-top: 0;
+  }
+
+  figure.image {
+    width: 148px;
+    height: 100px;
+  }
+}
+
+.back-to-top {
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: .2rem;
+  color: $text-white;
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  a {
+    display: block;
+    background: $background-dark;
+    padding: 1.2rem 3rem 1.5rem;
+    color: $text-white;
+
+    &:focus,
+    &:hover {
+      display: block;
+      background: $background-link;
+      padding: 1.2rem 3rem 1.5rem;
+      color: $text-white;
+    }
+  }
 }

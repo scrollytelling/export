@@ -117,7 +117,19 @@ Pageflow::Revision
     export = Export.new(revision)
     puts export.canonical_url
 
-    FileUtils.mkdir_p [export.host, export.slug].join('/')
+    system("wget " +
+      "--adjust-extension " +
+      "--convert-links " +
+      "--domains=hu.scrollytelling.io,scrollytelling.link " +
+      "--https-only " +
+      "--mirror " +
+      "--output-file=crawler.log " +
+      "--page-requisites " +
+      "--span-hosts " +
+      "--reject robots.txt " +
+      "--timestamping " +
+      export.canonical_url)
+
     index = [export.host, 'index.json'].join('/')
 
     attributes = File.exist?(index) ? JSON.parse(File.read(index)) : export.defaults
