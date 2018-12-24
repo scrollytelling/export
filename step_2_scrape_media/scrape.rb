@@ -7,7 +7,9 @@ require 'pathname'
 require 'fileutils'
 require 'uri'
 
-browser = Watir::Browser.new :chrome, headless: true
+browser = Watir::Browser.new :chrome,
+  headless: true,
+  options: { args: ['--window-size=1600,1080'] }
 browser.goto 'https://app.scrollytelling.io/admin/login'
 
 browser.text_field(label: 'Email*').set ENV.fetch('EMAIL', 'joost@spacebabies.nl')
@@ -40,6 +42,27 @@ def sync(bucket, source:nil, account:)
   system("aws s3 sync \"s3://#{from}\" \"#{dest}\" --no-progress")
 end
 
+def shoot_pages(browser, screens, host, slug)
+  browser.nav(id: 'scrollytelling-navigation').as.each_with_index do |link, index|
+    browser.goto link.attribute_value('href')
+    uri = URI(browser.url)
+
+    browser.section(id: uri.fragment).wait_until { |s| s.class_name.include? 'active' }
+    browser.screenshot.save screens.join(
+      "#{slug}-page#{index + 1}_#{uri.fragment}-chrome71.png"
+    )
+  rescue Watir::Wait::TimeoutError => error
+    warn error.to_s
+    next
+  end
+end
+
+def uri_path(url)
+  URI.unescape(url)
+    .sub('https:/', '..')
+    .sub(/\?\d+\z/, '')
+end
+
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
 
@@ -59,8 +82,16 @@ index['entries'].each do |entry|
 
     files.each do |file|
 
-      if (file['original_url'])
-        sync file['original_url'][match_bucket], account: account
+      if (url = file['original_url'])
+        sync url[match_bucket], account: account
+
+        # add the file's path how it will be in the archive.
+        file['path'] = uri_path(url)
+        # strip the first slash, otherwise absolute dir is assumed
+        pathname = account.root.join(file['path'][1..-1])
+        file['sha256'] = Digest::SHA256.file(pathname)
+        file['size'] = pathname.size
+        file['content_type'] ||= MimeMagic.by_path(pathname).type
       end
 
       if (file['poster_url'])
@@ -70,23 +101,13 @@ index['entries'].each do |entry|
       file['sources']&.each do |source|
         if (source['src'])
           # change https://output.scroll to /output.scroll
-          source['path'] = source.delete('src').sub('https:/', '')
+          source['path'] = uri_path(source.delete('src'))
 
           sync source['path'][match_bucket],
             source: source['path'][match_bucket].sub('output.scrollytelling.com', 'storyboard-pageflow-production-out'),
             account: account
         end
       end
-
-      # add the file's path how it will be in the archive.
-      file['path'] = URI.unescape(file['original_url'])
-        .sub('https:/', '')
-        .sub(/\?\d+\z/, '')
-      # strip the first slash, otherwise absolute dir is assumed
-      pathname = account.root.join(file['path'][1..-1])
-      file['sha256'] = Digest::SHA256.file(pathname)
-      file['size'] = pathname.size
-      file['content_type'] ||= MimeMagic.by_path(pathname).type
 
       entry[filetype] << file.slice(
         'content_type',
@@ -112,8 +133,25 @@ index['entries'].each do |entry|
     account.index.write(JSON.pretty_generate(index), mode: 'wt')
   end
 
+  story_path = account.root.join(slug)
+  screens = story_path.join('screens')
+  FileUtils.rmtree screens
+  FileUtils.mkdir_p screens
+
   browser.goto ['https:/', host, slug].join('/')
-  story_index = account.root.join(slug, 'index.html')
+
+  # The multimedia alert is very in the way and does not add anything.
+  browser.execute_script("document.querySelectorAll('.multimedia_alert').forEach(function(item){item.remove()})")
+  browser.wait_until { |b| b.body.class_name.include? 'finished-loading' }
+  browser.screenshot.save screens.join(
+    "#{host}-#{slug}-chrome71.png"
+  )
+
+  shoot_pages(browser, screens, host, slug) if browser.nav(id: 'scrollytelling-navigation').exists?
+
+  system("cd #{screens}; mogrify -format jpg -interlace Plane -quality 85 *.png; rm *.png")
+
+  story_index = story_path.join('index.html')
   story_index.write(browser
     .html
     .gsub('https://scrollytelling.link', '/scrollytelling.link')
@@ -137,10 +175,10 @@ index['entries'].each do |entry|
   end
 
   system("/bin/gzip --force --keep --recursive #{account.assets_path.join('entries', '*.css')}")
-  FileUtils.mkdir_p account.assets_path
-  FileUtils.cp_r "#{__dir__}/assets", account.assets_path
-  FileUtils.mkdir_p account.output_path
-  FileUtils.cp_r "#{__dir__}/outputs", account.output_path
 
   puts
+
+rescue Watir::Wait::TimeoutError => error
+  warn error.to_s
+  next
 end

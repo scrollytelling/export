@@ -14,6 +14,15 @@ class Export
   end
 
   def attributes
+    chapters = revision.entry.chapters
+      .order(:position)
+      .map do |chapter|
+      {
+        title: chapter.title,
+        pages: chapter.pages.order(:position).map { |page| page.attributes.slice('title', 'subtitle', 'tagline', 'description', 'text', 'template', 'display_in_navigation') }
+      }
+    end
+
     {
       "locale" => locale,
       "title" => title,
@@ -26,7 +35,8 @@ class Export
       "published_at" => revision.published_at.iso8601,
       "publisher" => publisher,
       "author" => author,
-      "credits" => revision.credits.presence
+      "credits" => revision.credits.presence,
+      "chapters" => chapters
     }
   end
 

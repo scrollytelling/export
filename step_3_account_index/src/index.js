@@ -1,3 +1,15 @@
+import baguetteBox from 'baguettebox.js';
+import List from 'list.js';
+import * as moment from 'moment';
+
+// destroy broken images
+window.addEventListener('error', function(event) {
+  console.log(event)
+  if (event.error.type == 'Event') {
+    event.error.target.remove()
+  }
+})
+
 var locale = window.navigator.userLanguage || window.navigator.language
 
 moment.locale(locale)

@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{account.name}} Scrollytelling archive</title>
-    <link rel="preload" as="style" href="index.css">
-    <link rel="stylesheet" href="index.css">
+    <link rel="preload" as="style" href="scrollies.css">
+    <link rel="stylesheet" href="scrollies.css">
     <link rel="alternate" type="application/atom+xml" href="atom.xml" title="Atom (RSS) Feed" />
     <link rel="alternate" type="application/json" title="JSON" href="index.json">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -38,7 +38,7 @@
     <section class="section" id="{{ id }}">
       <div class="container">
         <div class="columns">
-          <div class="column is-8-desktop is-offset-2-desktop">
+          <div class="column is-10-desktop is-offset-1-desktop">
             <div class="content" id="scrollies">
               <div class="box">
                 <div class="field">
@@ -48,7 +48,7 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label class="label">Sort on:</label>
+                  <label class="label">Sort by</label>
                   <div class="control">
                     <button class="button is-light sort" data-sort="title">Title</button>
                     <button class="button is-light sort" data-sort="author">Author</button>
@@ -59,12 +59,18 @@
               <p>{{ entries.length}} entries</p>
               <div class="list">
                 {{#entries}}
-                <a class="scrolly is-clearfix" hreflang="nl" href="{{ slug }}">
-                  <p class="surtitle is-pulled-right">
-                    <time class="published" datetime="{{ published_at }}">{{ published_at }}</time>
-                  </p>
-                  <h2 class="title">{{ title }}</h2>
-                  <p class="subtitle is-4 author">{{ author }}</p></a>
+                <article class="media">
+                  <div class="media-left">
+                    <figure class="image" style="width: 148px; height: 100px;">
+                      <img src="{{ slug }}/screens/{{ host }}-{{ slug }}-chrome71.jpg">
+                    </figure>
+                  </div>
+                  <div class="media-content is-clearfix">
+                    <time class="published is-pulled-right" datetime="{{ published_at }}">{{ published_at }}</time>
+                    <h2 class="title" style="margin-top: 0;"><a hreflang="{{ locale }}" href="{{ slug }}">{{ title }}</a></h2>
+                    <p class="subtitle author">@{{ author }}</p></a>
+                  </div>
+                </article>
                 {{/entries}}
               </div>
             </div>
@@ -87,8 +93,6 @@
         </div>
       </div>
     </footer>
-    <script src="js/moment-with-locales.js"></script>
-    <script src="js/list.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="bundle.js"></script>
   </body>
 </html>
