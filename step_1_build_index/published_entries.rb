@@ -14,29 +14,20 @@ class Export
   end
 
   def attributes
-    chapters = revision.entry.chapters
-      .order(:position)
-      .map do |chapter|
-      {
-        title: chapter.title,
-        pages: chapter.pages.order(:position).map { |page| page.attributes.slice('title', 'subtitle', 'tagline', 'description', 'text', 'template', 'display_in_navigation') }
-      }
-    end
-
     {
-      "locale" => locale,
-      "title" => title,
+      "locale" => entry.locale,
+      "title" => entry.title,
       "summary" => revision.summary.presence,
       "host" => host,
-      "slug" => slug,
-      "canonical_url" => canonical_url,
+      "slug" => entry.slug,
+      "canonical_url" => short_entry_url(entry.to_model, host: host, protocol: 'https'),
       "created_at" => revision.entry.created_at.iso8601,
       "updated_at" => revision.entry.updated_at.iso8601,
       "published_at" => revision.published_at.iso8601,
-      "publisher" => publisher,
+      "publisher" => entry.publisher.presence,
       "author" => author,
       "credits" => revision.credits.presence,
-      "chapters" => chapters
+      "chapters" => chapters(revision.entry.chapters.order(:position))
     }
   end
 
@@ -69,32 +60,12 @@ class Export
     }
   end
 
-  def locale
-    entry.locale
-  end
-
-  def title
-    entry.title
-  end
-
-  def slug
-    entry.slug
-  end
-
   def host
     account.default_theming.cname.presence || 'app.scrollytelling.io'
   end
 
-  def canonical_url
-    short_entry_url(entry.to_model, host: host, protocol: 'https')
-  end
-
   def years_active
     @years_active ||= account.entries.pluck('year(created_at)').sort.uniq
-  end
-
-  def publisher
-    entry.publisher.presence
   end
 
   def author
@@ -105,6 +76,28 @@ class Export
   def account_managers
     Pageflow::AccountMemberQuery::Scope.new(account)
       .with_role_at_least(:manager)
+  end
+
+  private
+
+  # Transform ActiveRecord result into array of hashes.
+  def chapters(chapters)
+    chapters.map do |chapter|
+      {
+        position: chapter.position,
+        title: chapter.title,
+        pages: pages(chapter.pages.order(:position))
+      }
+    end
+  end
+
+  # Transform ActiveRecord result into array of hashes.
+  def pages(pages)
+    pages.map do |page|
+      page
+        .attributes
+        .slice('title', 'subtitle', 'tagline', 'description', 'text', 'template', 'display_in_navigation')
+    end
   end
 end
 
