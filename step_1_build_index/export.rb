@@ -50,14 +50,7 @@ class Export
     }
   end
 
-  def defaults
-    manager_names = account_managers.map do |user|
-      {
-        "first_name" => user.first_name,
-        "last_name" => user.last_name
-      }
-    end
-
+  def default_attributes
     {
       "info" => {
         "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
@@ -98,6 +91,16 @@ class Export
   end
 
   private
+
+  def manager_names
+    account_managers
+      .map do |user|
+      {
+        "first_name" => user.first_name,
+        "last_name" => user.last_name
+      }
+    end
+  end
 
   # Transform ActiveRecord result into array of hashes to export.
   def pages(chapter)

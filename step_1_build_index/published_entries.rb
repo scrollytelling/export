@@ -1,41 +1,64 @@
 require 'fileutils'
 require 'json'
 require 'open3'
+require 'http'
 
+require_relative './archive'
 require_relative './export'
 
-Pageflow::Revision
+revisions = Pageflow::Revision
   .published
   .joins(:entry)
+  .includes(entry: [:account], storylines: { chapters: [:pages] })
   .order(published_at: :desc)
-  .each do |revision|
 
-    export = Export.new(revision)
-    dir = Pathname.new(__dir__).join('../entries')
-    puts export.canonical_url
+revisions.each_with_index do |revision, counter|
+  export = Export.new(revision)
+  dir = Pathname.new(__dir__).join('../entries')
+  index = dir.join(export.host, 'index.json')
+  FileUtils.mkdir_p(index.dirname)
 
-    Open3.capture3("wget",
-      "--adjust-extension",
-      "--convert-links",
-      "--domains=hu.scrollytelling.io,scrollytelling.link",
-      "--https-only",
-      "--mirror",
-      "--output-file=crawler.log",
-      "--page-requisites",
-      "--reject robots.txt",
-      "--span-hosts",
-      "--timestamping",
-      export.canonical_url, chdir: dir)
+  if index.exist?
+    index_text = index.read
+    # if the index already has our story, skip.
+    next if index_text.include?(export.entry.slug)
+    attributes = JSON.parse(index_text)
+  else
+    attributes = export.default_attributes
+  end
 
-    index = dir.join(export.host, 'index.json')
+  puts "[#{counter + 1}/#{revisions.length}] #{export.canonical_url}"
 
-    attributes = index.exist? ? JSON.parse(index.read) : export.defaults
-    attributes['entries'].push export.attributes
+  # Let others store a archive copy as well.e
+  # TODO only allow one submission per month or so.
+  Archive.new(export).submit_all
 
-    # Sort entries on something the database can't do:
-    # attributes['entries'].sort_by! { |entry| entry['title'] }
+  stdout, stderr, status = Open3.capture3("wget",
+    "--adjust-extension",
+    "--convert-links",
+    "--domains=#{export.host},scrollytelling.link",
+    "--https-only",
+    "--mirror",
+    "--page-requisites",
+    "--reject=audio,index.html,robots.txt,videos",
+    "--span-hosts",
+    "--timestamping",
+    export.canonical_url, chdir: dir
+  )
 
-    File.open(index, 'wt') do |file|
-      file.write(JSON.pretty_generate(attributes))
-    end
+  dir.join('reports', 'crawler.out.log').write(stdout.read, 'at')
+  dir.join('reports', 'crawler.err.log').write(stderr.read, 'at')
+
+  warn status unless status.success?
+  next if status.exitstatus == 4 # network failure
+  next if status.exitstatus == 6 # authorization required
+
+  attributes['entries'].push export.attributes
+
+  # Sort entries on something the database can't do:
+  # attributes['entries'].sort_by! { |entry| entry['title'] }
+
+  File.open(index.to_path, 'wt') do |file|
+    file.write(JSON.pretty_generate(attributes))
+  end
 end
