@@ -26,9 +26,11 @@ session = AdminSession.new
 session.login
 
 index = JSON.parse($account.index.read)
-index['entries'].each do |entry|
+total = index['entries'].length
+index['entries'].each_with_index do |entry, num|
 
-  puts "== scraping: #{entry['canonical_url']}"
+  puts
+  puts "== scraping #{num + 1} of #{total}: #{entry['canonical_url']}"
   story = Story.new(entry)
 
   %w(video_files image_files audio_files).each do |filetype|
@@ -74,12 +76,13 @@ index['entries'].each do |entry|
       )
     end
 
-    $account.index.write(JSON.pretty_generate(index), mode: 'wt')
   end
 
   # We have all the files. Grab the screens next.
   screenshot = Screenshot.new story
-  screenshot.create_all!
+  entry['screenshots'] = screenshot.create_all!
 
   puts
 end
+
+$account.index.write(JSON.pretty_generate(index), mode: 'wt')

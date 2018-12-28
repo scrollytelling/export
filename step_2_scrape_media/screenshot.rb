@@ -19,9 +19,8 @@ class Screenshot
 
   # Create all screenshots for the Scrollytelling.
   def create_all!
-    puts "Grabbing screenshots for #{story.entry['title']}"
-    puts "Output folder: #{path}"
     puts
+    puts "Creating screenshots in #{path.realpath}"
 
     FileUtils.rmtree path
     FileUtils.mkdir_p path
@@ -38,38 +37,42 @@ class Screenshot
     return unless nav.exists?
 
     nav.as.each_with_index do |link, index|
-      browser.goto link.attribute_value('href')
+      browser.goto link.href
       uri = URI(browser.url)
 
       browser.section(id: uri.fragment).wait_until { |s| s.class_name.include? 'active' }
-      screenshot = path.join("#{story.slug}-page#{index + 1}_#{uri.fragment}.png")
-      browser.screenshot.save screenshot
-
-      screenshot = screenshot.realpath.to_s
-      image = Vips::Image.new_from_file(screenshot)
-
-      image.set_type GObject::GSTR_TYPE,
-        'exif-ifd0-XPTitle', story.entry['title']
-      image.set_type GObject::GSTR_TYPE,
-        'exif-ifd0-XPComment', link.to_s
-      image.set_type GObject::GSTR_TYPE,
-        'exif-ifd0-ImageDescription', "#{story.entry['title']} page #{index + 1}"
-      image.set_type GObject::GSTR_TYPE,
-        'exif-ifd0-XPKeywords', %w(scrollytelling pageflow screenshot).join(',')
-      cap = browser.driver.capabilities
-      image.set_type GObject::GSTR_TYPE,
-        'exif-ifd0-Software', [cap.browser_name, cap.version, cap.platform].join('/')
-
-      options = { Q: 85, interlace: true, optimize_coding: true }
-      jpeg = screenshot.sub('.png', '.jpg')
-      image.jpegsave jpeg, options
-
-      thumbnail = image.thumbnail_image 280
-      thumbnail.jpegsave jpeg.sub('.jpg', '_280.jpg'), options.merge(strip: true)
+      browser.screenshot.save path.join("#{story.slug}-page#{index + 1}_#{uri.fragment}.png")
 
     rescue Watir::Wait::TimeoutError => error
       warn error.to_s
       next
     end
+
+    filenames = []
+    cap = browser.driver.capabilities
+
+    Dir.glob(path.join('*.png')).each do |filename|
+      image = Vips::Image.new_from_file(filename)
+
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-XPTitle', story.entry['title']
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-XPComment', story.url
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-ImageDescription', "You're seeing a screenshot of the online story #{story.entry['title']}. It was made using a scripted Chrome browser in the process of archiving the full story."
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-XPKeywords', %w(scrollytelling pageflow Screenshots).join(',')
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-Software', [cap.browser_name, cap.version, cap.platform].join('/')
+
+      options = { Q: 85, interlace: true, optimize_coding: true }
+      image.jpegsave filename.sub('.png', '.jpg'), options
+      filenames << image.filename
+
+      thumbnail = image.thumbnail_image 280
+      thumbnail.jpegsave filename.sub('.png', '_280.jpg'), options.merge(strip: true)
+    end
+
+    filenames
   end
 end
