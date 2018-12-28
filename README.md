@@ -88,7 +88,19 @@ The idea is to place an entire Document Root directory on the remote.
 
 ``` shell
 # this will recreate `account.scrollytelling.com` on the remote.
-rsync --compress --verbose --partial-dir=.rsync --progress --recursive --safe-links --times --human-readable account.scrollytelling.com root@example.com:/var/www
+rsync \
+  --chmod=a=rwX \
+  --compress \
+  --human-readable \
+  --no-owner \
+  --partial-dir=.rsync \
+  --progress \
+  --recursive \
+  --safe-links \
+  --times \
+  --verbose \
+
+  account.scrollytelling.com root@example.com:/var/www
 ```
 
 # AUTHOR
