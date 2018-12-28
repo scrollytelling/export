@@ -64,6 +64,8 @@ class Screenshot
         'exif-ifd0-XPKeywords', %w(scrollytelling pageflow Screenshots).join(',')
       image.set_type GObject::GSTR_TYPE,
         'exif-ifd0-Software', [cap.browser_name, cap.version, cap.platform].join('/')
+      image.set_type GObject::GSTR_TYPE,
+        'exif-ifd0-Copyright', 'CC-BY-4.0'
 
       options = { Q: 85, interlace: true, optimize_coding: true }
       image.jpegsave filename.sub('.png', '.jpg'), options
