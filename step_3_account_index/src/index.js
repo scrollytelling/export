@@ -5,14 +5,6 @@ import * as moment from 'moment';
 // import './main.scss';
 // import template from './index.html.mustache';
 
-// destroy broken images
-window.addEventListener('error', function(event) {
-  console.log(event)
-  if (event.error.type == 'Event') {
-    event.error.target.remove()
-  }
-})
-
 var locale = window.navigator.userLanguage || window.navigator.language
 
 moment.locale(locale)
