@@ -19,8 +19,12 @@ class Screenshot
 
   # Create all screenshots for the Scrollytelling.
   def create_all!
+    if File.exist?(path.join("#{story.host}-#{story.slug}.jpg"))
+      return Dir.glob(path.join('*.jpg'))
+    end
+
     puts
-    puts "Creating screenshots in #{path.realpath}"
+    puts "Creating screenshots in #{path}"
 
     FileUtils.rmtree path
     FileUtils.mkdir_p path
@@ -42,10 +46,6 @@ class Screenshot
 
       browser.section(id: uri.fragment).wait_until { |s| s.class_name.include? 'active' }
       browser.screenshot.save path.join("#{story.slug}-page#{index + 1}_#{uri.fragment}.png")
-
-    rescue Watir::Wait::TimeoutError => error
-      warn error.to_s
-      next
     end
 
     filenames = []
@@ -74,5 +74,7 @@ class Screenshot
     end
 
     filenames
+  rescue Watir::Wait::TimeoutError => error
+    warn error.to_s
   end
 end

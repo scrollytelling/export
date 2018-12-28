@@ -1,6 +1,8 @@
+require 'open3'
+
 class BucketDownloader
   attr_reader :paths
-  
+
   # expects an array of bucket + paths to grab.
   # It should end with three groups of digits.
   #   e.g. media.scrollytelling.com/main/v1/blah/000/002/432
@@ -21,10 +23,14 @@ class BucketDownloader
   def sync
     paths.each do |path|
       dest = $account.root.join(path)
-      from = path.sub('output.scrollytelling.io', 'storyboard-pageflow-production-out')
-      system("aws s3 sync", "s3://#{from}", "#{dest}", "--no-progress")
+      from = path.sub(/output\.scrollytelling\.\w+/, 'storyboard-pageflow-production-out')
 
-      puts "  s3://#{from} ➡️  #{dest}"
+      stdout, stderr, status = Open3.capture3("aws", "s3", "sync", "s3://#{from}", dest.to_path, "--no-progress")
+      if status.success?
+        puts "  s3://#{from} ➡️  #{dest}"
+      else
+        raise [status, stdout, stderr].join("\n")
+      end
     end
   end
 end

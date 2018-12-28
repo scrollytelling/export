@@ -44,14 +44,16 @@ index['entries'].each_with_index do |entry, num|
       .each do |file|
 
       if file['original_url']
-        # add the file's path how it will be in the archive.
-        file['path'] = archive_path(file['original_url'])
+        archived = $account.root.join archive_path(file['original_url'])
 
-        # Ensure the asset is present and add a few fun properties.
-        pathname = $account.root.join(file['path'])
-        file['sha256'] = Digest::SHA256.file(pathname)
-        file['size'] = pathname.size
-        file['content_type'] ||= MimeMagic.by_path(pathname).type
+        if archived.exist?
+          file['sha256'] = Digest::SHA256.file(archived)
+          file['size'] = archived.size
+          file['content_type'] ||= MimeMagic.by_path(archived).type
+        else
+          $account.root.join('MISSING').write("#{archived}\n", 'at')
+          next
+        end
       end
 
       file['sources']&.each do |source|
@@ -74,6 +76,9 @@ index['entries'].each_with_index do |entry, num|
         'variants',
         'width'
       )
+
+      # intermediate savepoint
+      $account.index.write(JSON.pretty_generate(index), mode: 'wt')
     end
 
   end
@@ -82,7 +87,6 @@ index['entries'].each_with_index do |entry, num|
   screenshot = Screenshot.new story
   entry['screenshots'] = screenshot.create_all!
 
+  $account.index.write(JSON.pretty_generate(index), mode: 'wt')
   puts
 end
-
-$account.index.write(JSON.pretty_generate(index), mode: 'wt')

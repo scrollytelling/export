@@ -23,6 +23,7 @@ do
   find ${account} -type f -print0 | xargs -0 sed -i -e 's\https://scrollytelling.link\scrollytelling.link\g'
   find ${account} -type f -print0 | xargs -0 sed -i -e 's\../scrollytelling.link\scrollytelling.link\g'
   find ${account} -type f -print0 | xargs -0 sed -i -e "s\https://hu.scrollytelling.io/images\images\g"
+  find "${account}/*/index.html" -print0 | xargs -0 sed -i -e "3,7d"
 
   gzip --keep --force $account/**/*.html $account/**/*.json $account/**/*.xml $account/site.webmanifest
   gzip --keep --force $account/**/*.svg
