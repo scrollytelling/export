@@ -3,6 +3,7 @@
 ## And now! The script!!
 set -x
 
+# Shenanigans for all the files in all the accounts!
 sed -ni '/csrf/!p' ../entries/*/*.html # strip CSRF tokens
 sed -ni '/PAGEFLOW_EDITOR/!p' ../entries/*/*.html # strip editor JS
 sed -i 's/ data-turbolinks-track="true"//g' ../entries/*/*.html # no turbolinks either
@@ -16,6 +17,9 @@ sed -i 's\../scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
 sed -i 's\/media\media\g' ../entries/**/*.css
 sed -i 's\/media\media\g' ../entries/**/*.js
 sed -i 's\/media\media\g' ../entries/**/*.html
+
+find ../entries -type d -name audio -print0 | xargs -0 /bin/rm -rf
+find ../entries -type d -name videos -print0 | xargs -0 /bin/rm -rf
 
 webpack
 

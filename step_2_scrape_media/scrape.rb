@@ -47,6 +47,7 @@ index['entries'].each_with_index do |entry, num|
         archived = $account.root.join archive_path(file['original_url'])
 
         if archived.exist?
+          file['path'] = archive_path(file['original_url'])
           file['sha256'] = Digest::SHA256.file(archived)
           file['size'] = archived.size
           file['content_type'] ||= MimeMagic.by_path(archived).type

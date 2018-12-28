@@ -15,10 +15,16 @@
   {{#entries}}
 	<entry>
 		<title>{{ title }}</title>
-		<link rel="alternate" type="text/html" href="{{ canonical_url }}" hreflang="{{ locale }}"/>
+		<link rel="alternate" type="text/html" href="{{{ canonical_url }}}" hreflang="{{ locale }}"/>
+		{{#image_files}}
+		<link rel="enclosure" type="{{{ content_type }}}" href="{{{ path }}}" length="{{ size }}" width="{{ width }}" height="{{ height }}"/>
+		{{/image_files}}
     {{#video_files}}
-    <link rel="enclosure" href="{{ path }}" type="{{ content_type }}" length="{{ size }}"/>
+    <link rel="enclosure" href="{{{ path }}}" type="{{{ content_type }}}" length="{{ size }}"/>
     {{/video_files}}
+		{{#audio_files}}
+		<link rel="enclosure" type="{{{ content_type }}}" href="{{{ path }}}" length="{{ size }}"/>
+		{{/audio_files}}
 		<id>tag:scrollytelling.com,2018:{{ slug }}</id>
 		<updated>{{ updated_at }}</updated>
     <published>{{ published_at }}</published>
