@@ -11,7 +11,7 @@ Pageflow::Revision
   .each do |revision|
 
     export = Export.new(revision)
-    dir = Pathname.join(__dir__, '../entries')
+    dir = Pathname.new(__dir__).join('../entries')
     puts export.canonical_url
 
     Open3.capture3("wget",
@@ -27,9 +27,9 @@ Pageflow::Revision
       "--timestamping",
       export.canonical_url, chdir: dir)
 
-    index = [export.host, 'index.json'].join('/')
+    index = dir.join(export.host, 'index.json')
 
-    attributes = File.exist?(index) ? JSON.parse(File.read(index)) : export.defaults
+    attributes = index.exist? ? JSON.parse(index.read) : export.defaults
     attributes['entries'].push export.attributes
 
     # Sort entries on something the database can't do:

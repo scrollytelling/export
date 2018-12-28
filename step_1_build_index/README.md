@@ -7,7 +7,15 @@ Use the script to create an `index.json` for each Scrollytelling account.
 To run it:
 
 ``` shell
-zsh -x generate.zsh
+$SCROLLY_HOME/bin/rails runner published_entries.rb
 ```
 
 It assumes output dir is `../entries`.
+
+### Rebuilding chapters
+
+There is a separate script to update all chapters in all indexes.
+
+``` shell
+ruby update_chapters.rb
+```

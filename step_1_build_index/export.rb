@@ -12,6 +12,26 @@ class Export
     @account = entry.account
   end
 
+  # Transform ActiveRecord result into array of hashes to export.
+  # This is a nested structure, going all the way to this entry's pages.
+  def storylines
+    revision
+      .storylines
+      .map do |storyline|
+        {
+          id: storyline.id,
+          position: storyline.position,
+          perma_id: storyline.perma_id,
+          chapters: chapters(storyline)
+        }
+      end
+  end
+
+  # Straight from Rails path helpers.
+  def canonical_url
+    short_entry_url(entry.to_model, host: host, protocol: 'https')
+  end
+
   def attributes
     {
       "locale" => entry.locale,
@@ -19,14 +39,14 @@ class Export
       "summary" => revision.summary.presence,
       "host" => host,
       "slug" => entry.slug,
-      "canonical_url" => short_entry_url(entry.to_model, host: host, protocol: 'https'),
+      "canonical_url" => canonical_url,
       "created_at" => revision.entry.created_at.iso8601,
       "updated_at" => revision.entry.updated_at.iso8601,
       "published_at" => revision.published_at.iso8601,
       "publisher" => entry.publisher.presence,
       "author" => author,
       "credits" => revision.credits.presence,
-      "chapters" => chapters(revision.entry.chapters.order(:position))
+      "storylines" => storylines
     }
   end
 
@@ -79,23 +99,36 @@ class Export
 
   private
 
-  # Transform ActiveRecord result into array of hashes.
-  def chapters(chapters)
-    chapters.map do |chapter|
-      {
-        position: chapter.position,
-        title: chapter.title,
-        pages: pages(chapter.pages.order(:position))
-      }
-    end
+  # Transform ActiveRecord result into array of hashes to export.
+  def pages(chapter)
+    chapter
+      .pages
+      .order(:position)
+      .map do |page|
+        {
+          id: page.id,
+          position: page.position,
+          perma_id: page.perma_id,
+          page_type: page.page_type,
+          configuration: page.configuration,
+          template: page.template,
+          display_in_navigation: page.display_in_navigation
+        }
+      end
   end
 
-  # Transform ActiveRecord result into array of hashes.
-  def pages(pages)
-    pages.map do |page|
-      page
-        .attributes
-        .slice('title', 'subtitle', 'tagline', 'description', 'text', 'template', 'display_in_navigation')
+  # Transform ActiveRecord result into array of hashes to export.
+  def chapters(storyline)
+    storyline
+      .chapters
+      .order(:position)
+      .map do |chapter|
+        {
+          id: chapter.id,
+          position: chapter.position,
+          title: chapter.title,
+          pages: pages(chapter)
+        }
     end
   end
 end
