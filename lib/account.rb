@@ -13,4 +13,13 @@ Account = Struct.new(:host) do
   def index
     root.join("index.json")
   end
+  # create our desired output structure
+  def output_directories!
+    FileUtils.mkdir_p(root.join('archive'))
+    FileUtils.mkdir_p(root.join('images'))
+    FileUtils.mkdir_p(root.join('media.scrollytelling.com'))
+    FileUtils.mkdir_p(root.join('output.scrollytelling.com'))
+    FileUtils.mkdir_p(root.join('reports'))
+    FileUtils.mkdir_p(root.join('scrollytelling.link'))
+  end
 end

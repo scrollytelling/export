@@ -9,7 +9,7 @@ require 'uri'
 
 require_relative './screenshot'
 require_relative './admin_session'
-require_relative './account'
+require_relative '../lib/account'
 require_relative './story'
 require_relative './bucket_downloader'
 

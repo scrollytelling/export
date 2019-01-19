@@ -3,9 +3,10 @@ require 'http'
 
 # Submit the page to Internet Archives.
 class Archive
-  attr_reader :url, :escaped_url
+  attr_reader :export, :url, :escaped_url
 
   def initialize(export)
+    @export = export
     @url = export.canonical_url
     @escaped_url = CGI::escape(@url)
   end

@@ -4,6 +4,33 @@ It will become a plain old static HTML website that you can put on almost anythi
 
 📗🌇📽🎹 ➡️➡️➡️ 💾📂
 
+# THE END GAME
+
+- hu.scrollytelling.io/
+  - afvallen via je onderbewustzijn/
+  - afvallen via je onderbewustzijn/index.html
+  - afvallen via je onderbewustzijn/screens/
+
+  - media.scrollytelling.com/
+  - output.scrollytelling.com/
+
+  - reports/
+
+  - scrollytelling.link/
+    - assets/
+    - entries
+
+  - index.atom
+  - index.json
+  - index.html
+  - robots.txt
+  - humans.txt
+
+  - archive/scrollies.css
+  - archive/bundle.js
+  - archive/scrollytelling.png
+  - archive/scrollytelling.svg
+
 # USAGE
 
 After you've cloned this repository, do this.

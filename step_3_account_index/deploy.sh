@@ -33,9 +33,8 @@ do
   mustache "${account}/index.json" ./src/humans.txt.mustache > "${account}/humans.txt"
 
   cp -r ./_documentroot/* $account
-  cp -r ./_scrollytelling.link/* "${account}/scrollytelling.link"
-  cp -r ./_output.scrollytelling.com/* "${account}/output.scrollytelling.com"
-  # mv "${account}/entries" "${account}/scrollytelling.link"
+  cp -r ./_scrollytelling.link/* "${account}/scrollytelling.link/"
+  cp -r ./_output.scrollytelling.com/* "${account}/output.scrollytelling.com/"
 
   # gzip --keep --force $account/**/*.html $account/**/*.json $account/**/*.xml $account/site.webmanifest
   # gzip --keep --force $account/**/*.svg

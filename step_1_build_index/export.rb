@@ -12,6 +12,14 @@ class Export
     @account = entry.account
   end
 
+  def slug
+    entry.slug
+  end
+
+  def host
+    entry.host
+  end
+
   # Transform ActiveRecord result into array of hashes to export.
   # This is a nested structure, going all the way to this entry's pages.
   def storylines

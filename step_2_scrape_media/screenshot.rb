@@ -14,7 +14,7 @@ class Screenshot
   end
 
   def path
-    story.path.join('screens')
+    $account.root.join('images', 'screenshots')
   end
 
   # Create all screenshots for the Scrollytelling.
