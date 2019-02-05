@@ -18,7 +18,7 @@ revisions.each_with_index do |revision, counter|
   export = Export.new revision
   account = Account.new export.host
   account.output_directories!
-  FileUtils.mktree account.root.join(export.slug)
+  FileUtils.mkdir_p account.root.join(export.slug)
 
   if account.index.exist?
     index_text = account.index.read
@@ -56,7 +56,7 @@ revisions.each_with_index do |revision, counter|
   # Sort entries on something the database can't do:
   # attributes['entries'].sort_by! { |entry| entry['title'] }
 
-  File.open(index.to_path, 'wt') do |file|
+  File.open(account.index.to_path, 'wt') do |file|
     file.write(JSON.pretty_generate(attributes))
   end
 

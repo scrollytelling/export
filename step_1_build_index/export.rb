@@ -120,7 +120,7 @@ class Export
           id: page.id,
           position: page.position,
           perma_id: page.perma_id,
-          page_type: page.page_type,
+          page_type: page.page_type.name,
           configuration: page.configuration,
           template: page.template,
           display_in_navigation: page.display_in_navigation

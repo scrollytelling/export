@@ -13,7 +13,6 @@ class Archive
 
   def submit_all
     archive_org
-    archive_today
   end
 
   def archive_org
@@ -21,9 +20,5 @@ class Archive
     if response.code == 404
       HTTP.get "https://web.archive.org/save/#{url}"
     end
-  end
-
-  def archive_today
-    HTTP.get "http://archive.today/?run=1&url=#{escaped_url}"
   end
 end
