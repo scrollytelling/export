@@ -59,6 +59,6 @@ Pageflow::Account.find_each do |account|
   puts "mysql -uroot #{account.name.parameterize} < ../databases/scrollytelling.sql"
   puts "mysql -uroot #{account.name.parameterize} < ./cascade.sql"
   puts "mysql -uroot #{account.name.parameterize} < ./strip-#{account.name.parameterize}.sql"
-  puts "mysqldupm -uroot #{account.name.parameterize} > ../databases/#{account.name.parameterize}.sql"
+  puts "mysqldump -uroot #{account.name.parameterize} > ../databases/#{account.name.parameterize}.sql"
   puts
 end
