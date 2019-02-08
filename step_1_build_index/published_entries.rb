@@ -21,12 +21,10 @@ revisions.each_with_index do |revision, counter|
   FileUtils.mkdir_p account.root.join(export.slug)
 
   if account.index.exist?
-    index_text = account.index.read
-    # if the index already has our story, skip.
-    next if index_text.include?(export.entry.slug)
-    attributes = JSON.parse(index_text)
+    index = JSON.parse(account.index.read)
+    index['entries'] << export.entry_attributes
   else
-    attributes = export.default_attributes
+    index = export.account_attributes
   end
 
   puts "[#{counter + 1}/#{revisions.length}] #{export.canonical_url}"
@@ -51,13 +49,8 @@ revisions.each_with_index do |revision, counter|
   # next if status.exitstatus == 4 # network failure
   # next if status.exitstatus == 6 # authorization required
 
-  attributes['entries'].push export.attributes
-
-  # Sort entries on something the database can't do:
-  # attributes['entries'].sort_by! { |entry| entry['title'] }
-
   File.open(account.index.to_path, 'wt') do |file|
-    file.write(JSON.pretty_generate(attributes))
+    file.write(JSON.pretty_generate(index))
   end
 
   # Let others store a archive copy as well.e

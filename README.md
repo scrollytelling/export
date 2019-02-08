@@ -37,19 +37,13 @@ After you've cloned this repository, do this.
 
 # 🥇
 
-First order of business: you will want to have an `index.json` for each published
-story. This file is going to be the main entry point for each story.
 
 ``` shell
-cd ${one dir above the future web roots}
-${SCROLLY_HOME}/bin/rails runner ${EXPORT_HOME}/step_1_build_index/published_entries.rb
+cd step_1_build_index
+${SCROLLY_HOME}/bin/rails runner published_entries.rb
 ```
 
-When that's done, you should have one folder for every Scrollytelling account.
-
-Inside those folders should be one folder for every published story. Good? We good.
-
-Time to fetch all those sweet media files.
+If you need more information, check each folder's README.
 
 # 🥈
 

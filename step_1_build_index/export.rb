@@ -20,27 +20,12 @@ class Export
     entry.host
   end
 
-  # Transform ActiveRecord result into array of hashes to export.
-  # This is a nested structure, going all the way to this entry's pages.
-  def storylines
-    revision
-      .storylines
-      .map do |storyline|
-        {
-          id: storyline.id,
-          position: storyline.position,
-          perma_id: storyline.perma_id,
-          chapters: chapters(storyline)
-        }
-      end
-  end
-
   # Straight from Rails path helpers.
   def canonical_url
     short_entry_url(entry.to_model, host: host, protocol: 'https')
   end
 
-  def attributes
+  def entry_attributes
     {
       "locale" => entry.locale,
       "title" => entry.title,
@@ -54,11 +39,14 @@ class Export
       "publisher" => entry.publisher.presence,
       "author" => author,
       "credits" => revision.credits.presence,
-      "storylines" => storylines
+      "storylines" => storylines,
+      "audio_files" => find_files(Pageflow::AudioFile),
+      "video_files" => find_files(Pageflow::VideoFile),
+      "image_files" => find_files(Pageflow::ImageFile)
     }
   end
 
-  def default_attributes
+  def account_attributes
     {
       "info" => {
         "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
@@ -70,7 +58,9 @@ class Export
         "homepage" => 'https://www.scrollytelling.com',
         "repository" => 'https://github.com/scrollytelling/export'
       },
-      "entries" => [],
+      "entries" => [
+        entry_attributes
+      ],
       "account" => {
 	      "name" => account.name,
 	      "managers" => manager_names,
@@ -99,6 +89,76 @@ class Export
   end
 
   private
+
+  class ExportFile
+    attr_reader :file, :attrs
+
+    def initialize(file)
+      @file = file
+
+      @attrs = {
+        'url' => file.url,
+        'rights' => file.rights
+      }
+    end
+
+    def attributes
+      case file.class.to_s
+      when 'Pageflow::ImageFile'
+        attrs.merge \
+          'file_name' => file.unprocessed_attachment_file_name,
+          'file_size' => file.unprocessed_attachment_file_size,
+          'content_type' => file.unprocessed_attachment_content_type,
+          'width' => file.width,
+          'height' => file.height
+
+      when 'Pageflow::VideoFile'
+        attrs.merge \
+          'file_name' => file.attachment_on_s3_file_name,
+          'file_size' => file.attachment_on_s3_file_size,
+          'content_type' => file.attachment_on_s3_content_type,
+          'width' => file.width,
+          'height' => file.height,
+          'duration_in_ms' => file.duration_in_ms
+
+      when 'Pageflow::AudioFile'
+        attrs.merge \
+          'file_name' => file.attachment_on_s3_file_name,
+          'file_size' => file.attachment_on_s3_file_size,
+          'content_type' => file.attachment_on_s3_content_type,
+          'duration_in_ms' => file.duration_in_ms
+
+      else
+        raise "Unknown file: #{file}"
+      end
+    end
+  end
+
+  # https://github.com/codevise/pageflow/blob/f0342d71ac80d2f2b67f9a6a666706d7333f0ba7/app/models/pageflow/revision.rb#L134
+  def find_files(model, extra: [])
+    model
+      .includes(:usages)
+      .references(:pageflow_file_usages)
+      .where(pageflow_file_usages: {revision_id: revision.id})
+      .map do |file|
+        ExportFile.new(file).attributes
+      end
+  end
+
+  # Transform ActiveRecord result into array of hashes to export.
+  # This is a nested structure, going all the way to this entry's pages.
+  def storylines
+    revision
+      .storylines
+      .map do |storyline|
+        {
+          'id' => storyline.id,
+          'position' => storyline.position,
+          'perma_id' => storyline.perma_id,
+          'chapters' => chapters(storyline)
+        }
+      end
+  end
 
   def manager_names
     account_managers
