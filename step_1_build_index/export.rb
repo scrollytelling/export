@@ -106,7 +106,6 @@ class Export
       case file.class.to_s
       when 'Pageflow::ImageFile'
         attrs.merge \
-          'file_name' => file.unprocessed_attachment_file_name,
           'file_size' => file.unprocessed_attachment_file_size,
           'content_type' => file.unprocessed_attachment_content_type,
           'width' => file.width,
@@ -114,19 +113,26 @@ class Export
 
       when 'Pageflow::VideoFile'
         attrs.merge \
-          'file_name' => file.attachment_on_s3_file_name,
           'file_size' => file.attachment_on_s3_file_size,
           'content_type' => file.attachment_on_s3_content_type,
           'width' => file.width,
           'height' => file.height,
-          'duration_in_ms' => file.duration_in_ms
+          'duration_in_ms' => file.duration_in_ms,
+          'sources' => [
+            { 'type' => 'application/x-mpegURL', 'url' => file.hls_playlist.url },
+            { 'type' => 'video/mp4', 'url' => file.mp4_high.url }
+          ]
 
       when 'Pageflow::AudioFile'
         attrs.merge \
-          'file_name' => file.attachment_on_s3_file_name,
           'file_size' => file.attachment_on_s3_file_size,
           'content_type' => file.attachment_on_s3_content_type,
-          'duration_in_ms' => file.duration_in_ms
+          'duration_in_ms' => file.duration_in_ms,
+          'sources' => [
+            { 'type' => 'audio/ogg', url: file.ogg.url },
+            { 'type' => 'audio/mp4', url: file.m4a.url },
+            { 'type' => 'audio/mpeg', url: file.mp3.url }
+          ]
 
       else
         raise "Unknown file: #{file}"
