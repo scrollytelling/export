@@ -48,7 +48,13 @@ class Export
 
   def account_attributes
     {
+      "account" => {
+        "name" => account.name,
+        "managers" => manager_names,
+        "years_active" => account.entries.order(:created_at).pluck('year(created_at)').uniq
+      },
       "info" => {
+        "id" => SecureRandom.uuid,
         "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
         "created_at" => Time.current.iso8601,
         "format" => '1.0.0',
@@ -60,22 +66,12 @@ class Export
       },
       "entries" => [
         entry_attributes
-      ],
-      "account" => {
-	      "name" => account.name,
-	      "managers" => manager_names,
-	      "years_active" => years_active
-      },
-      "id" => SecureRandom.uuid
+      ]
     }
   end
 
   def host
     account.default_theming.cname.presence || 'app.scrollytelling.io'
-  end
-
-  def years_active
-    @years_active ||= account.entries.pluck('year(created_at)').sort.uniq
   end
 
   def author
@@ -158,7 +154,6 @@ class Export
       .storylines
       .map do |storyline|
         {
-          'id' => storyline.id,
           'position' => storyline.position,
           'perma_id' => storyline.perma_id,
           'chapters' => chapters(storyline)
@@ -183,13 +178,10 @@ class Export
       .order(:position)
       .map do |page|
         {
-          id: page.id,
-          position: page.position,
-          perma_id: page.perma_id,
-          page_type: page.page_type.name,
-          configuration: page.configuration,
-          template: page.template,
-          display_in_navigation: page.display_in_navigation
+          'position' => page.position,
+          'perma_id' => page.perma_id,
+          'page_type' => page.page_type.name,
+          'configuration' => page.configuration
         }
       end
   end
@@ -201,10 +193,9 @@ class Export
       .order(:position)
       .map do |chapter|
         {
-          id: chapter.id,
-          position: chapter.position,
-          title: chapter.title,
-          pages: pages(chapter)
+          'position' => chapter.position,
+          'title' => chapter.title,
+          'pages' => pages(chapter)
         }
     end
   end

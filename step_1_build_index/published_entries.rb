@@ -8,9 +8,13 @@ require_relative './archive'
 require_relative './export'
 require_relative '../lib/account'
 
+name = 'Hogeschool Utrecht'
+puts
+puts "✨ Exporting #{name} scrollies!"
+
 revisions = Pageflow::Revision
   .published
-  .joins(:entry)
+  .joins(entry: :account).where(pageflow_accounts: {name: name})
   .includes(entry: [:account], storylines: { chapters: [:pages] })
   .order(published_at: :desc)
 
