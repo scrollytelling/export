@@ -3,6 +3,9 @@ Account = Struct.new(:host) do
   def root
     Pathname.new("#{__dir__}/../entries/#{host}")
   end
+  def archive_path
+    root.join('archive')
+  end
   def assets_path
     root.join('scrollytelling.link')
   end
@@ -15,11 +18,11 @@ Account = Struct.new(:host) do
   end
   # create our desired output structure
   def output_directories!
-    FileUtils.mkdir_p(root.join('archive'))
+    FileUtils.mkdir_p(archive_path)
     FileUtils.mkdir_p(root.join('images'))
     FileUtils.mkdir_p(root.join('media.scrollytelling.com'))
-    FileUtils.mkdir_p(root.join('output.scrollytelling.com'))
+    FileUtils.mkdir_p(output_path)
     FileUtils.mkdir_p(root.join('reports'))
-    FileUtils.mkdir_p(root.join('scrollytelling.link'))
+    FileUtils.mkdir_p(assets_path)
   end
 end

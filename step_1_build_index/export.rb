@@ -40,9 +40,9 @@ class Export
       "author" => author,
       "credits" => revision.credits.presence,
       "storylines" => storylines,
-      "audio_files" => find_files(Pageflow::AudioFile),
-      "video_files" => find_files(Pageflow::VideoFile),
-      "image_files" => find_files(Pageflow::ImageFile)
+      "audio_files" => audio_files,
+      "video_files" => video_files,
+      "image_files" => image_files
     }
   end
 
@@ -82,6 +82,18 @@ class Export
   def account_managers
     Pageflow::AccountMemberQuery::Scope.new(account)
       .with_role_at_least(:manager)
+  end
+
+  def audio_files
+    @audio_files ||= find_files(Pageflow::AudioFile)
+  end
+
+  def video_files
+    @video_files ||= find_files(Pageflow::VideoFile)
+  end
+
+  def image_files
+    @video_files ||= find_files(Pageflow::ImageFile)
   end
 
   private
@@ -125,9 +137,9 @@ class Export
           'content_type' => file.attachment_on_s3_content_type,
           'duration_in_ms' => file.duration_in_ms,
           'sources' => [
-            { 'type' => 'audio/ogg', url: file.ogg.url },
-            { 'type' => 'audio/mp4', url: file.m4a.url },
-            { 'type' => 'audio/mpeg', url: file.mp3.url }
+            { 'type' => 'audio/ogg', 'url' => file.ogg.url },
+            { 'type' => 'audio/mp4', 'url' => file.m4a.url },
+            { 'type' => 'audio/mpeg', 'url' => file.mp3.url }
           ]
 
       else

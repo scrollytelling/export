@@ -7,6 +7,7 @@ require 'http'
 require_relative './archive'
 require_relative './export'
 require_relative '../lib/account'
+require_relative '../lib/bucket_downloader'
 
 name = 'Hogeschool Utrecht'
 puts
@@ -57,7 +58,14 @@ revisions.each_with_index do |revision, counter|
     file.write(JSON.pretty_generate(index))
   end
 
+  account.archive_path.join('MANIFEST').open('a+t') do |manifest|
+    export.audio_files.each do |file|
+      manifest.puts file['url']
+      manifest.puts file['sources'].map { |source| source['url'] }
+    end
+  end
+
   # Let others store a archive copy as well.e
   # TODO only allow one submission per month or so.
-  Archive.new(export).submit_all
+#  Archive.new(export).submit_all
 end
