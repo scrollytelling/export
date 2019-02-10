@@ -1,7 +1,7 @@
 # Very simple wrapper around a Scrollytelling account.
 Account = Struct.new(:host) do
   def root
-    Pathname.new("#{__dir__}/../entries/#{host}")
+    Pathname.new(__dir__).join('../entries', host)
   end
   def archive_path
     root.join('archive')
@@ -17,12 +17,13 @@ Account = Struct.new(:host) do
     root.join("index.json")
   end
   # create our desired output structure
-  def output_directories!
-    FileUtils.mkdir_p(archive_path)
-    FileUtils.mkdir_p(root.join('images'))
-    FileUtils.mkdir_p(root.join('media.scrollytelling.com'))
-    FileUtils.mkdir_p(output_path)
-    FileUtils.mkdir_p(root.join('reports'))
-    FileUtils.mkdir_p(assets_path)
+  def output_directories!(slug)
+    FileUtils.mkdir_p archive_path
+    FileUtils.mkdir_p root.join('images')
+    FileUtils.mkdir_p root.join('media.scrollytelling.com')
+    FileUtils.mkdir_p output_path
+    FileUtils.mkdir_p root.join('reports')
+    FileUtils.mkdir_p assets_path
+    FileUtils.mkdir_p root.join(slug)
   end
 end

@@ -53,7 +53,7 @@ class Export
         "managers" => manager_names,
         "years_active" => account.entries.order(:created_at).pluck('year(created_at)').uniq
       },
-      "info" => {
+      "archive" => {
         "id" => SecureRandom.uuid,
         "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
         "created_at" => Time.current.iso8601,
