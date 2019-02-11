@@ -1,3 +1,5 @@
+require 'pathname'
+
 # Very simple wrapper around a Scrollytelling account.
 Account = Struct.new(:host) do
   def root
