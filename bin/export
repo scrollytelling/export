@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+export ACCOUNT=hu.scrollytelling.io
+
+# STEP: query the database and build index.json
+$SCROLLY_HOME/bin/rails runner step_1_build_index/published_entries.rb
+
+# STEP: download HTML and story-specific assets
+step_1_build_index/canonical_urls | wget \
+  --adjust-extension \
+  --convert-links \
+  --directory-prefix="entries" \
+  --mirror \
+  --page-requisites \
+  --timestamping \
+  --verbose \
+  --input-file=- || true
+
+cd entries/${ACCOUNT}
+
+# STEP: move the HTML into their own directories
+ls *.html | parallel mv {} {.}/index.html
+
+# STEP: sync media bucket
+../../step_1_build_index/media_folders | xargs -I '{}' aws s3 sync s3://{} {}
+
+# STEP: sync output bucket
+../../step_1_build_index/output_folders | xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out{} output.scrollytelling.com{}
+
+mv entries scrollytelling.link/
+
+# STEP: clean the html
+find -name 'index.html' | xargs ../../step_2_scrape_media/tidy
+
+rm robots.txt

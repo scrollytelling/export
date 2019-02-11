@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'pathname'
+require 'active_support'
+require 'active_support/core_ext/object/blank'
+
+require_relative "../lib/scrollytelling/export/account"
+
+hostname = ENV.fetch('ACCOUNT')
+
+account = Scrollytelling::Export::Account.new hostname
+index = JSON.parse(account.index.read)
+index['entries'].each do |entry|
+  %w[audio_files image_files video_files].each do |type|
+    entry[type].each do |file|
+      next unless file['sources']
+
+      file['sources'].each do |source|
+        puts source['url']
+          .sub('https://output.scrollytelling.io.s3-website.eu-central-1.amazonaws.com', '')
+          .sub('radion', 'main')
+          .sub(/\/h.*\z/, '')
+      end
+    end
+  end
+end

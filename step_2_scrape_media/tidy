@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "scrollytelling/export"
+
+require 'fileutils'
+
+filename = ARGV[0]
+backup = filename.sub(/html\z/, 'orig.html')
+
+FileUtils.copy_file(filename, backup) unless File.exists?(backup)
+
+slug = filename.split('/')[1]
+
+index = File.readlines filename
+tidied = index
+  .reject {|l| l.blank? }
+  .reject {|l| l.include? 'csrf' }
+  .reject {|l| l.include? 'href="entries' }
+
+tidied.slice!(4..6) if tidied[4].include? "<script>"
+
+tidied
+  .insert(3, '    <meta charset="utf-8">')
+  .insert(18, %Q[    <link rel="stylesheet" media="all" href="/scrollytelling.link/entries/#{slug}.css" data-name="entry" />])
+
+out = StringIO.new
+out.puts tidied
+tidied = out.string
+  .gsub(' data-turbolinks-track="true"', '')
+  .gsub('https://scrollytelling.link', '/scrollytelling.link')
+  .gsub('http://media.scrollytelling.com', '/media.scrollytelling.com')
+  .gsub('https://media.scrollytelling.com', '/media.scrollytelling.com')
+  .gsub('https://output.scrollytelling.com', '/output.scrollytelling.com')
+
+File.open(filename, 'wt') {|f| f.write tidied }

@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+require 'json'
+require 'pathname'
+
+require_relative "../lib/scrollytelling/export/account"
+
+hostname = ENV.fetch('ACCOUNT')
+
+account = Scrollytelling::Export::Account.new hostname
+index = JSON.parse(account.index.read)
+index['entries'].each do |entry|
+  puts entry['canonical_url']
+end
