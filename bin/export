@@ -3,6 +3,15 @@ set -euo pipefail
 IFS=$'\n\t'
 set -vx
 
+# Bundler, for Ruby
+gem install bundler --conservative
+bundle check || bundle install
+
+# NPM, for Node
+npm -v
+npm install -g npm-check
+npm-check
+
 export ACCOUNT=hu.scrollytelling.io
 
 # STEP: query the database and build index.json
@@ -12,16 +21,17 @@ $SCROLLY_HOME/bin/rails runner step_1_build_index/published_entries.rb
 step_1_build_index/canonical_urls | wget \
   --adjust-extension \
   --convert-links \
-  --directory-prefix="entries" \
+  --directory-prefix="${HOME}" \
   --mirror \
   --page-requisites \
   --timestamping \
   --verbose \
   --input-file=- || true
 
-cd entries/${ACCOUNT}
+cd ${HOME}/${ACCOUNT}
 
 # STEP: move the HTML into their own directories
+ls *.html | parallel echo sed -i 's/{}//g' {}
 ls *.html | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
@@ -30,9 +40,30 @@ ls *.html | parallel mv {} {.}/index.html
 # STEP: sync output bucket
 ../../step_1_build_index/output_folders | xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out{} output.scrollytelling.com{}
 
-mv entries scrollytelling.link/
+# STEP: unpack static assets.
+tar xvfz ../../artifacts/assets.tar.gz scrollytelling.link/
+tar xvfz ../../artifacts/output.tar.gz output.scrollytelling.com/
+tar xvfz ../../artifacts/root.tar.gz
+
+mkdir -p scrollytelling.link/entries
+
+for file in entries/*; do
+  mv "$file" "scrollytelling.link/${file/\?*/}"
+done
 
 # STEP: clean the html
-find -name 'index.html' | xargs ../../step_2_scrape_media/tidy
+ls */index.html | parallel ../../step_2_scrape_media {}
+sed -i 's\https://output\/output\g' */index.html
+sed -i 's\https://output\/output\g' */*/*.html
+sed -i 's\//output\/output\g' scrollytelling.link/**/*.js
+sed -i 's\https://media\/media\g' scrollytelling.link/**/*.css
+sed -i 's\https://media\/media\g' scrollytelling.link/*/index.html
+sed -i 's\http://media\/media\g' scrollytelling.link/*/index.html
+sed -i 's\https://scrollytelling\/scrollytelling\g' */index.html
+sed -i 's\https://scrollytelling\/scrollytelling\g' */*/*.html
+sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.css
+sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.js
+sed -i 's/ data-turbolinks-track="true"//g' ../entries/*/*.html # no turbolinks either
 
+# STEP: remove unwanted artifacts
 rm robots.txt

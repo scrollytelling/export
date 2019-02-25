@@ -1,14 +1,13 @@
 require 'time'
 require 'json'
 
-Dir.glob("../entries/*").each do |account|
-  next unless File.exist?("#{account}/index.json")
-  json = File.read("#{account}/index.json")
-  index = JSON.parse(json)
+require_relative "../lib/scrollytelling/export/account"
 
-  index['entries'].each do |entry|
-    time = Time.iso8601 entry['published_at']
-    story = "#{account}/#{entry['slug']}.html"
-    File.utime time, time, story if File.exist?(story)
-  end
+hostname = ENV.fetch('ACCOUNT')
+account = Scrollytelling::Export::Account.new hostname
+index = JSON.parse(account.index.read)
+index['entries'].each do |entry|
+  time = Time.iso8601 entry['published_at']
+  story = "#{entry['slug']}/index.html"
+  File.utime time, time, story if File.exist?(story)
 end

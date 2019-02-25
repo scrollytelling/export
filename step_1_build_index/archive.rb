@@ -16,7 +16,7 @@ class Archive
   end
 
   def archive_org
-    response = HTTP.get "http://archive.org/wayback/available?url=#{export.host}/#{export.slug}"
+    response = HTTP.get "http://archive.org/wayback/available?url=#{export.hostname}/#{export.slug}"
     if response.code == 404
       HTTP.get "https://web.archive.org/save/#{url}"
     end

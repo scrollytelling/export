@@ -2,33 +2,44 @@ require 'pathname'
 
 module Scrollytelling
   module Export
-    # Very simple wrapper around a Scrollytelling account.
-    Account = Struct.new(:host) do
+    class Account
+      attr_reader :home, :hostname
+
+      def initialize(hostname)
+        @home = ENV.fetch('HOME')
+        @hostname = hostname
+      end
+
       def root
-        Pathname.new(__dir__).join('../../../entries', host)
+        @root ||= Pathname.new(home).join(hostname)
       end
+
       def archive_path
-        root.join('archive')
+        @archive_path ||= root.join('archive')
       end
-      def assets_path
-        root.join('scrollytelling.link')
+
+      def screenshots
+        @screenshots ||= archive_path.join('screenshots')
       end
-      def output_path
-        root.join('output.scrollytelling.com')
-      end
+
       # it's not the indexpage of a story, but index for the entire account.
       def index
         root.join("index.json")
       end
+
       # create our desired output structure
       def output_directories!(slug)
-        FileUtils.mkdir_p archive_path
-        FileUtils.mkdir_p root.join('images')
-        FileUtils.mkdir_p root.join('media.scrollytelling.com')
-        FileUtils.mkdir_p output_path
-        FileUtils.mkdir_p root.join('reports')
-        FileUtils.mkdir_p assets_path
         FileUtils.mkdir_p root.join(slug)
+
+        %w[
+          archive
+          media.scrollytelling.com
+          output.scrollytelling.com
+          scrollytelling.link
+
+        ].each do |dir|
+          FileUtils.mkdir_p root.join(dir)
+        end
       end
     end
   end

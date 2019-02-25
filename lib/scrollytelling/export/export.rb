@@ -6,25 +6,22 @@ module Scrollytelling
     class Export
       include Pageflow::Engine.routes.url_helpers
 
-      attr_reader :account, :entry, :revision
+      attr_reader :account, :entry, :revision, :slug
 
       def initialize(revision)
         @revision = revision
         @entry = Pageflow::PublishedEntry.new(revision.entry, revision)
-        @account = entry.account
+        @account = @entry.account
+        @slug = @entry.slug
       end
 
-      def slug
-        entry.slug
-      end
-
-      def host
-        entry.host
+      def hostname
+        account.default_theming.cname.presence || 'app.scrollytelling.io'
       end
 
       # Straight from Rails path helpers.
       def canonical_url
-        short_entry_url(entry.to_model, host: host, protocol: 'https')
+        short_entry_url(entry.to_model, host: hostname, protocol: 'https')
       end
 
       def entry_attributes
@@ -32,8 +29,7 @@ module Scrollytelling
           "locale" => entry.locale,
           "title" => entry.title,
           "summary" => revision.summary.presence,
-          "host" => host,
-          "slug" => entry.slug,
+          "slug" => slug,
           "canonical_url" => canonical_url,
           "created_at" => revision.entry.created_at.iso8601,
           "updated_at" => revision.entry.updated_at.iso8601,
@@ -52,6 +48,7 @@ module Scrollytelling
         {
           "account" => {
             "name" => account.name,
+            "hostname" => hostname,
             "managers" => manager_names,
             "years_active" => account.entries.order(:created_at).pluck('year(created_at)').uniq
           },
@@ -70,10 +67,6 @@ module Scrollytelling
             entry_attributes
           ]
         }
-      end
-
-      def host
-        account.default_theming.cname.presence || 'app.scrollytelling.io'
       end
 
       def author
@@ -95,7 +88,10 @@ module Scrollytelling
       end
 
       def image_files
-        @image_files ||= find_files(Pageflow::ImageFile)
+        @image_files ||= find_files(
+          Pageflow::ImageFile
+            .where(unprocessed_attachment_content_type: ['image/jpeg', 'image/png'])
+        )
       end
 
       private
@@ -107,7 +103,7 @@ module Scrollytelling
           @file = file
 
           @attrs = {
-            'url' => file.url,
+            'url' => exported_url(file.url),
             'rights' => file.rights
           }
         end
@@ -115,38 +111,55 @@ module Scrollytelling
         def attributes
           case file.class.to_s
           when 'Pageflow::ImageFile'
-            attrs.merge \
+            @attrs.merge! \
               'file_size' => file.unprocessed_attachment_file_size,
               'content_type' => file.unprocessed_attachment_content_type,
               'width' => file.width,
               'height' => file.height
 
           when 'Pageflow::VideoFile'
-            attrs.merge \
+            @attrs.merge! \
               'file_size' => file.attachment_on_s3_file_size,
               'content_type' => file.attachment_on_s3_content_type,
               'width' => file.width,
               'height' => file.height,
               'duration_in_ms' => file.duration_in_ms,
               'sources' => [
-                { 'type' => 'application/x-mpegURL', 'url' => file.hls_playlist.url },
-                { 'type' => 'video/mp4', 'url' => file.mp4_high.url }
+                { 'type' => 'application/x-mpegURL', 'url' => exported_url(file.hls_playlist.url) },
+                { 'type' => 'video/mp4', 'url' => exported_url(file.mp4_high.url) }
               ]
+            if file.poster.present?
+              @attrs.merge! \
+                'poster' => exported_url(file.poster.url)
+            end
 
           when 'Pageflow::AudioFile'
-            attrs.merge \
+            @attrs.merge! \
               'file_size' => file.attachment_on_s3_file_size,
               'content_type' => file.attachment_on_s3_content_type,
               'duration_in_ms' => file.duration_in_ms,
               'sources' => [
-                { 'type' => 'audio/ogg', 'url' => file.ogg.url },
-                { 'type' => 'audio/mp4', 'url' => file.m4a.url },
-                { 'type' => 'audio/mpeg', 'url' => file.mp3.url }
+                { 'type' => 'audio/ogg', 'url' => exported_url(file.ogg.url) },
+                { 'type' => 'audio/mp4', 'url' => exported_url(file.m4a.url) },
+                { 'type' => 'audio/mpeg', 'url' => exported_url(file.mp3.url) }
               ]
 
           else
             raise "Unknown file: #{file}"
           end
+
+          @attrs
+        end
+
+        private
+
+        def exported_url(url)
+          warn "#{file.attributes} has nil url" and return if url.blank?
+
+          url
+            .sub('https:/', '')
+            .sub('.s3-website.eu-central-1.amazonaws.com', '')
+            .sub('radion', 'main')
         end
       end
 

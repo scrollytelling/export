@@ -13,17 +13,29 @@ index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|
     entry[type].each do |file|
-      next if file['url'].blank?
+      next if file.nil?
 
       url = file['url']
-        .sub(/\?\d*\z/, '')
-        .sub(/\Ahttps:\/\//, '')
-        .sub('.io', '.com')
-        .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
-        .sub(/\/original.*\z/, '')
-        .sub(/\/v1.*\z/, '')
+      if url.present?
+        puts url
+          .sub(/\?\d*\z/, '')
+          .sub(/\Ahttps:\/\//, '')
+          .sub('.io', '.com')
+          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
+          .sub(/\/original.*\z/, '')
+          .sub(/\/v1.*\z/, '')
+      end
 
-      puts url
+      poster = file['poster']
+      if poster.present?
+        puts poster
+          .sub(/\?\d*\z/, '')
+          .sub(/\Ahttps:\/\//, '')
+          .sub('.io', '.com')
+          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
+          .sub(/\/original.*\z/, '')
+          .sub(/\/v1.*\z/, '')
+      end
     end
   end
 end

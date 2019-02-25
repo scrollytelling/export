@@ -1,0 +1,8 @@
+source "https://rubygems.org"
+
+gem 'scrollytelling-export', path: '..', require: 'scrollytelling/export'
+
+gem 'webdrivers'
+gem 'mimemagic'
+gem "watir", "~> 6.16.0"
+gem "ruby-vips", "~> 2.0"

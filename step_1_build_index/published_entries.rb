@@ -3,6 +3,7 @@ require 'json'
 
 require_relative "../lib/scrollytelling/export/account"
 require_relative "../lib/scrollytelling/export/export"
+require_relative "../lib/scrollytelling/export/story"
 
 hostname = ENV.fetch('ACCOUNT')
 puts
