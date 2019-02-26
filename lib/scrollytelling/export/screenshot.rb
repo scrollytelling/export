@@ -72,6 +72,10 @@ module Scrollytelling
 
           thumbnail = image.thumbnail_image 280
           thumbnail.jpegsave filename.sub('.png', '_280.jpg'), options.merge(strip: true)
+
+          # command line:
+          # ls **/screens/*.png | xargs vipsthumbnail --size=280 --output='%s_280.jpg[Q=85,optimize_coding,interlace]' --delete --rotate 
+
         end
 
         filenames
