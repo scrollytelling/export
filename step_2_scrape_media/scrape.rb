@@ -20,7 +20,7 @@ def archive_path(url)
     .sub(/\?\d+\z/, '')
 end
 
-$account = Account.new ENV.fetch('ACCOUNT', 'stories.scrollytelling.com')
+$account = Account.new hostname
 
 session = AdminSession.new
 session.login

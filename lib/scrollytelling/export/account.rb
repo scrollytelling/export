@@ -1,4 +1,5 @@
 require 'pathname'
+require 'fileutils'
 
 module Scrollytelling
   module Export
@@ -27,10 +28,22 @@ module Scrollytelling
         root.join("index.json")
       end
 
-      # create our desired output structure
-      def output_directories!(slug)
-        FileUtils.mkdir_p root.join(slug)
+      # Makes a media URL work in the archive.
+      def clean(url)
+        url
+          .sub('https://output.scrollytelling.io.s3-website.eu-central-1.amazonaws.com', '')
+          .sub(/\?\d{10}\z/, '')
+          .sub(/\Ahttps:\/\//, '')
+          .sub('radion', 'main')
+          .sub('/media', 'media')
+          .sub('/output', 'output')
+          .sub('.io', '.com')
+          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
+          .sub(/\/original.*\z/, '')
+          .sub(/\/v1.*\z/, '')
+      end
 
+      def create_root_dirs!
         %w[
           archive
           media.scrollytelling.com
@@ -40,6 +53,12 @@ module Scrollytelling
         ].each do |dir|
           FileUtils.mkdir_p root.join(dir)
         end
+      end
+
+      # create our desired output structure
+      def output_directories!(slug)
+        FileUtils.mkdir_p root.join(slug)
+        create_root_dirs!
       end
     end
   end

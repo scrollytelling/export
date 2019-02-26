@@ -1,9 +1,13 @@
+#!/usr/bin/env ruby
+
+hostname = ARGV[0]
+abort "Missing argument: cname of the account to export." if hostname.nil?
+
 require 'time'
 require 'json'
 
 require_relative "../lib/scrollytelling/export/account"
 
-hostname = ENV.fetch('ACCOUNT')
 account = Scrollytelling::Export::Account.new hostname
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|

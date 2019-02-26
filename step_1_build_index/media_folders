@@ -1,4 +1,8 @@
 #!/usr/bin/env ruby
+
+hostname = ARGV[0]
+abort "Missing argument: cname of the account to export." if hostname.nil?
+
 require 'json'
 require 'pathname'
 require 'active_support'
@@ -6,9 +10,9 @@ require 'active_support/core_ext/object/blank'
 
 require_relative "../lib/scrollytelling/export/account"
 
-hostname = ENV.fetch('ACCOUNT')
-
 account = Scrollytelling::Export::Account.new hostname
+account.create_root_dirs!
+
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|
@@ -17,24 +21,12 @@ index['entries'].each do |entry|
 
       url = file['url']
       if url.present?
-        puts url
-          .sub(/\?\d*\z/, '')
-          .sub(/\Ahttps:\/\//, '')
-          .sub('.io', '.com')
-          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
-          .sub(/\/original.*\z/, '')
-          .sub(/\/v1.*\z/, '')
+        puts account.clean(url)
       end
 
       poster = file['poster']
       if poster.present?
-        puts poster
-          .sub(/\?\d*\z/, '')
-          .sub(/\Ahttps:\/\//, '')
-          .sub('.io', '.com')
-          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
-          .sub(/\/original.*\z/, '')
-          .sub(/\/v1.*\z/, '')
+        puts account.clean(poster)
       end
     end
   end

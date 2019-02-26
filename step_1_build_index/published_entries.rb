@@ -1,3 +1,6 @@
+hostname = ARGV[0]
+abort "Missing argument: cname of the account to export." if hostname.nil?
+
 require 'fileutils'
 require 'json'
 
@@ -5,7 +8,6 @@ require_relative "../lib/scrollytelling/export/account"
 require_relative "../lib/scrollytelling/export/export"
 require_relative "../lib/scrollytelling/export/story"
 
-hostname = ENV.fetch('ACCOUNT')
 puts
 puts "✨ Exporting #{hostname} scrollies!"
 

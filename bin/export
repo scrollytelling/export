@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
-set -vx
 
+if [ $# -eq 0 ]
+then
+	echo "This script exports an entire Scrollytelling account to HTML."
+	echo "The export is dumped in HOME for your enjoyment. Don't swallow everything at once."
+	echo
+	echo "Usage: $0 <account cname>"
+	echo "  e.g. $0 stories.example.com"
+	echo
+	exit 1
+fi
+
+set -vx
 # Bundler, for Ruby
 gem install bundler --conservative
 bundle check || bundle install
@@ -12,10 +23,8 @@ npm -v
 npm install -g npm-check
 npm-check
 
-export ACCOUNT=hu.scrollytelling.io
-
 # STEP: query the database and build index.json
-$SCROLLY_HOME/bin/rails runner step_1_build_index/published_entries.rb
+${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $1
 
 # STEP: download HTML and story-specific assets
 step_1_build_index/canonical_urls | wget \
@@ -28,11 +37,11 @@ step_1_build_index/canonical_urls | wget \
   --verbose \
   --input-file=- || true
 
-cd ${HOME}/${ACCOUNT}
+cd $HOME/$1
 
-# STEP: move the HTML into their own directories
-ls *.html | parallel echo sed -i 's/{}//g' {}
-ls *.html | parallel mv {} {.}/index.html
+# STEP: obliterate links to self and yolo every story into a directory.
+ls *.html | parallel sed -i 's/{}//g' {}
+ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
 ../../step_1_build_index/media_folders | xargs -I '{}' aws s3 sync s3://{} {}
@@ -63,7 +72,8 @@ sed -i 's\https://scrollytelling\/scrollytelling\g' */index.html
 sed -i 's\https://scrollytelling\/scrollytelling\g' */*/*.html
 sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.css
 sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.js
-sed -i 's/ data-turbolinks-track="true"//g' ../entries/*/*.html # no turbolinks either
+sed -i 's/ data-turbolinks-track="true"//g' */index.html # no turbolinks either
+sed -i 's/href="[a-z-]+\.html/href="/g' */index.html # no turbolinks either
 
 # STEP: remove unwanted artifacts
 rm robots.txt
