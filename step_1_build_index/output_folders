@@ -19,7 +19,7 @@ index['entries'].each do |entry|
       next unless file['sources']
 
       file['sources'].each do |source|
-        puts account.clean(source['url'])
+        puts account.bucket_path(source['url'])
       end
     end
   end

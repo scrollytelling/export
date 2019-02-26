@@ -29,12 +29,11 @@ module Scrollytelling
       end
 
       # Makes a media URL work in the archive.
-      def clean(url)
+      def bucket_path(url)
         url
           .sub('/media.scrollytelling.io', 'media.scrollytelling.com')
-          .sub('/output.scrollytelling.io', 'output.scrollytelling.com')
+          .sub('/output.scrollytelling.io/', '')
           .sub(/\?\d{10}\z/, '')
-          .sub('radion', 'main')
           .sub(/\/original.*\z/, '')
           .sub(/\/hls-playlist\.m3u8\z/, '')
           .sub(/\/high\.mp4\z/, '')

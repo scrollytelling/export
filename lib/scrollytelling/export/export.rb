@@ -160,6 +160,8 @@ module Scrollytelling
             .sub('https:/', '')
             .sub('.s3-website.eu-central-1.amazonaws.com', '')
             .sub('radion', 'main')
+            .sub('output.scrollytelling.io', 'output.scrollytelling.com')
+            .sub('media.scrollytelling.io', 'media.scrollytelling.com')
         end
       end
 

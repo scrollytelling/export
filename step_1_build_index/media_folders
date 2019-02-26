@@ -20,12 +20,12 @@ index['entries'].each do |entry|
 
       url = file['url']
       if url.present?
-        puts account.clean(url)
+        puts account.bucket_path(url)
       end
 
       poster = file['poster']
       if poster.present?
-        puts account.clean(poster)
+        puts account.bucket_path(poster)
       end
     end
   end
