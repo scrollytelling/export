@@ -44,10 +44,10 @@ ls *.html | parallel sed -i 's/{}//g' {}
 ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
-../../step_1_build_index/media_folders | xargs -I '{}' aws s3 sync s3://{} {}
+$HOME/scrollytelling-export/step_1_build_index/media_folders "stories.example.com" | xargs -I '{}' aws s3 sync s3://{} {}
 
 # STEP: sync output bucket
-../../step_1_build_index/output_folders | xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out{} output.scrollytelling.com{}
+$HOME/scrollytelling-export/step_1_build_index/output_folders "stories.example.com" | xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out/{} {}
 
 # STEP: unpack static assets.
 tar xvfz ../../artifacts/assets.tar.gz scrollytelling.link/

@@ -10,6 +10,8 @@ require 'active_support/core_ext/object/blank'
 require_relative "../lib/scrollytelling/export/account"
 
 account = Scrollytelling::Export::Account.new hostname
+account.create_root_dirs!
+
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|

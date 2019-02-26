@@ -31,16 +31,14 @@ module Scrollytelling
       # Makes a media URL work in the archive.
       def clean(url)
         url
-          .sub('https://output.scrollytelling.io.s3-website.eu-central-1.amazonaws.com', '')
+          .sub('/media.scrollytelling.io', 'media.scrollytelling.com')
+          .sub('/output.scrollytelling.io', 'output.scrollytelling.com')
           .sub(/\?\d{10}\z/, '')
-          .sub(/\Ahttps:\/\//, '')
           .sub('radion', 'main')
-          .sub('/media', 'media')
-          .sub('/output', 'output')
-          .sub('.io', '.com')
-          .sub('.s3-website.eu-central-1.amazonaws.com/radion', '/main')
           .sub(/\/original.*\z/, '')
-          .sub(/\/v1.*\z/, '')
+          .sub(/\/hls-playlist\.m3u8\z/, '')
+          .sub(/\/high\.mp4\z/, '')
+          .sub(/\/audio\.\w{3}*\z/, '')
       end
 
       def create_root_dirs!
