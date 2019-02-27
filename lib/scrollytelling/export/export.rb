@@ -103,7 +103,8 @@ module Scrollytelling
           @file = file
 
           @attrs = {
-            'url' => exported_url(file.url),
+            'original_url' => file.url,
+            'path' => exported_url(file.url),
             'rights' => file.rights
           }
         end
@@ -125,12 +126,13 @@ module Scrollytelling
               'height' => file.height,
               'duration_in_ms' => file.duration_in_ms,
               'sources' => [
-                { 'type' => 'application/x-mpegURL', 'url' => exported_url(file.hls_playlist.url) },
-                { 'type' => 'video/mp4', 'url' => exported_url(file.mp4_high.url) }
+                { 'type' => 'application/x-mpegURL', 'original_url' => file.hls_playlist.url, 'path' => exported_url(file.hls_playlist.url) },
+                { 'type' => 'video/mp4', 'url' => file.mp4_high.url, 'path' => exported_url(file.mp4_high.url) }
               ]
             if file.poster.present?
               @attrs.merge! \
-                'poster' => exported_url(file.poster.url)
+                'poster_original_url' => file.poster.url,
+                'poster_path' => exported_url(file.poster.url)
             end
 
           when 'Pageflow::AudioFile'
@@ -139,9 +141,9 @@ module Scrollytelling
               'content_type' => file.attachment_on_s3_content_type,
               'duration_in_ms' => file.duration_in_ms,
               'sources' => [
-                { 'type' => 'audio/ogg', 'url' => exported_url(file.ogg.url) },
-                { 'type' => 'audio/mp4', 'url' => exported_url(file.m4a.url) },
-                { 'type' => 'audio/mpeg', 'url' => exported_url(file.mp3.url) }
+                { 'type' => 'audio/ogg', 'original_url' => file.ogg.url, 'path' => exported_url(file.ogg.url) },
+                { 'type' => 'audio/mp4', 'original_url' => file.m4a.url, 'path' => exported_url(file.m4a.url) },
+                { 'type' => 'audio/mpeg', 'original_url' => file.mp3.url, 'path' => exported_url(file.mp3.url) }
               ]
 
           else
@@ -157,11 +159,8 @@ module Scrollytelling
           warn "#{file.attributes} has nil url" and return if url.blank?
 
           url
-            .sub('https:/', '')
-            .sub('.s3-website.eu-central-1.amazonaws.com', '')
-            .sub('radion', 'main')
-            .sub('output.scrollytelling.io', 'output.scrollytelling.com')
-            .sub('media.scrollytelling.io', 'media.scrollytelling.com')
+            .sub('https:///djax', '/output.scrollytelling.com')
+            .sub(/\?\d{10}\z/, '')
         end
       end
 

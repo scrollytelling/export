@@ -27,7 +27,7 @@ $HOSTNAME = $1
 ${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $HOSTNAME
 
 # STEP: download HTML and story-specific assets
-step_1_build_index/canonical_urls | wget \
+step_1_build_index/canonical_urls $HOSTNAME | wget \
   --adjust-extension \
   --convert-links \
   --directory-prefix="${HOME}" \
