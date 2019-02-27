@@ -80,7 +80,7 @@ find $HOME/$HOSTNAME \
 
 find $HOME/$HOSTNAME \
   -type f \
-	-exec sed -i 's\https://scrollytelling.link\/scrollytelling.link\g' {} +
+	-exec sed -i 's\/scrollytelling.link\/scrollytelling.link\g' {} +
 
 # sed -i 's/ data-turbolinks-track="true"//g' */index.html # no turbolinks either
 # sed -i 's/href="[a-z-]+\.html/href="/g' */index.html # no turbolinks either

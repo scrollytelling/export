@@ -11,7 +11,7 @@ sed -i 's\http://media\media\g' ../entries/**/*.html
 sed -i 's\https://media\media\g' ../entries/**/*.html
 sed -i 's\http://output\output\g' ../entries/**/*.html
 sed -i 's\https://output\output\g' ../entries/**/*.html
-sed -i 's\https://scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
+sed -i 's\/scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
 sed -i 's\../scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
 sed -i 's\/media\media\g' ../entries/**/*.css
 sed -i 's\/media\media\g' ../entries/**/*.js
