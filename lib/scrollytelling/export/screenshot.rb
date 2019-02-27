@@ -22,6 +22,9 @@ module Scrollytelling
           return Dir.glob(story.screens.join('*.jpg'))
         end
 
+        # Grab all navigable pages.
+        nav = browser.nav(id: 'scrollytelling-navigation')
+        return unless nav.exists?
 
         print "Attempting #{nav.as.length} screenshots in #{story.screens}: "
 
@@ -31,11 +34,7 @@ module Scrollytelling
 
         # Grab the opening page
         browser.screenshot.save story.screens.join("#{$account.hostname}-#{story.slug}.png")
-
-        # Grab all navigable pages.
-        nav = browser.nav(id: 'scrollytelling-navigation')
-        return unless nav.exists?
-
+``
         nav.as.each_with_index do |link, index|
           browser.goto link.href
           uri = URI(browser.url)
@@ -74,7 +73,7 @@ module Scrollytelling
           thumbnail.jpegsave filename.sub('.png', '_280.jpg'), options.merge(strip: true)
 
           # command line:
-          # ls **/screens/*.png | xargs vipsthumbnail --size=280 --output='%s_280.jpg[Q=85,optimize_coding,interlace]' --delete --rotate 
+          # ls **/screens/*.png | xargs vipsthumbnail --size=280 --output='%s_280.jpg[Q=85,optimize_coding,interlace]' --delete --rotate
 
         end
 

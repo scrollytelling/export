@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+hostname = ARGV[0]
+abort "Missing argument: cname of the account to export." if hostname.nil?

@@ -7,24 +7,24 @@ then
 	echo "This script exports an entire Scrollytelling account to HTML."
 	echo "The export is dumped in HOME for your enjoyment. Don't swallow everything at once."
 	echo
-	echo "Usage: $0 <account cname>"
+	echo "Pass the hostname you wish to export as paramater."
+	echo "Usage: $0 <cname>"
 	echo "  e.g. $0 stories.example.com"
 	echo
 	exit 1
 fi
 
 set -vx
+
 # Bundler, for Ruby
 gem install bundler --conservative
 bundle check || bundle install
 
-# NPM, for Node
-npm -v
-npm install -g npm-check
-npm-check
+# Setup variables to use throughout the script.
+$HOSTNAME = $1
 
 # STEP: query the database and build index.json
-${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $1
+${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $HOSTNAME
 
 # STEP: download HTML and story-specific assets
 step_1_build_index/canonical_urls | wget \
@@ -37,43 +37,62 @@ step_1_build_index/canonical_urls | wget \
   --verbose \
   --input-file=- || true
 
-cd $HOME/$1
+cd $HOME/$HOSTNAME
 
 # STEP: obliterate links to self and yolo every story into a directory.
 ls *.html | parallel sed -i 's/{}//g' {}
 ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
-$HOME/scrollytelling-export/step_1_build_index/media_folders "${1}" | xargs -I '{}' aws s3 sync s3://{} {}
+$HOME/scrollytelling-export/step_1_build_index/media_folders $HOSTNAME | xargs -I '{}' aws s3 sync s3://{} {}
 
 # STEP: sync output bucket. Bucket name is different from local path.
-$HOME/scrollytelling-export/step_1_build_index/output_folders "${1}" | echo xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out/{} $HOME/$1/output.scrollytelling.com/{}
+$HOME/scrollytelling-export/step_1_build_index/output_folders $HOSTNAME | echo xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out/{} $HOME/$HOSTNAME/output.scrollytelling.com/{}
+
+mkdir -p \
+  $HOME/$HOSTNAME/scrollytelling.link/entries \
+	$HOME/$HOSTNAME/output.scrollytelling.com
 
 # STEP: unpack static assets.
-tar xvfz ../../artifacts/assets.tar.gz scrollytelling.link/
-tar xvfz ../../artifacts/output.tar.gz output.scrollytelling.com/
-tar xvfz ../../artifacts/root.tar.gz
+unzip $HOME/scrollytelling-export/artifacts/assets.zip -d $HOME/$HOSTNAME/scrollytelling.link
+unzip $HOME/scrollytelling-export/artifacts/output.zip -d $HOME/$HOSTNAME/output.scrollytelling.com
+unzip $HOME/scrollytelling-export/artifacts/root.zip -d $HOME/$HOSTNAME
 
-mkdir -p scrollytelling.link/entries
+# STEP: make browser screenshots for each page of every story.
+cd $HOME/scrollytelling-export/step_2_screenshots
+bundle install
+./grab $HOSTNAME
+cd -
 
-for file in entries/*; do
-  mv "$file" "scrollytelling.link/${file/\?*/}"
-done
+# unused?
+# for file in entries/*; do
+#   mv "$file" "scrollytelling.link/${file/\?*/}"
+# done
 
 # STEP: clean the html
-ls */index.html | parallel ../../step_2_scrape_media {}
-sed -i 's\https://output\/output\g' */index.html
-sed -i 's\https://output\/output\g' */*/*.html
-sed -i 's\//output\/output\g' scrollytelling.link/**/*.js
-sed -i 's\https://media\/media\g' scrollytelling.link/**/*.css
-sed -i 's\https://media\/media\g' scrollytelling.link/*/index.html
-sed -i 's\http://media\/media\g' scrollytelling.link/*/index.html
-sed -i 's\https://scrollytelling\/scrollytelling\g' */index.html
-sed -i 's\https://scrollytelling\/scrollytelling\g' */*/*.html
-sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.css
-sed -i 's\https://scrollytelling\/scrollytelling\g' scrollytelling.link/**/*.js
-sed -i 's/ data-turbolinks-track="true"//g' */index.html # no turbolinks either
-sed -i 's/href="[a-z-]+\.html/href="/g' */index.html # no turbolinks either
+find $HOME/$HOSTNAME \
+  -type f \
+	-exec sed -i 's\https://output.scrollytelling.io\/output.scrollytelling.com\g' {} +
+
+find $HOME/$HOSTNAME \
+  -type f \
+	-exec sed -i 's\/media.scrollytelling\/media.scrollytelling\g' {} +
+
+find $HOME/$HOSTNAME \
+  -type f \
+	-exec sed -i 's\https://scrollytelling.link\/scrollytelling.link\g' {} +
+
+# sed -i 's/ data-turbolinks-track="true"//g' */index.html # no turbolinks either
+# sed -i 's/href="[a-z-]+\.html/href="/g' */index.html # no turbolinks either
 
 # STEP: remove unwanted artifacts
 rm robots.txt
+
+# STEP: compile templates based on exported information.
+cd step_3_account_index
+# NPM, for Node
+npm -v
+npm install -g npm-check
+npm-check
+
+npm run mustache:all
