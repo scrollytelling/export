@@ -1,9 +1,11 @@
 require 'pageflow/engine'
 
+require_relative './exportfile'
+
 module Scrollytelling
   module Export
     # Transmorphs a Pageflow::Revision into attributes we want.
-    class Export
+    class Exporter
       include Pageflow::Engine.routes.url_helpers
 
       attr_reader :account, :entry, :revision, :slug
@@ -90,88 +92,22 @@ module Scrollytelling
       def image_files
         @image_files ||= find_files(
           Pageflow::ImageFile
-            .where(unprocessed_attachment_content_type: ['image/jpeg', 'image/png'])
+            .where(
+	      unprocessed_attachment_content_type: ['image/jpeg', 'image/png']
+	    )
         )
       end
 
       private
 
-      class ExportFile
-        attr_reader :file, :attrs
-
-        def initialize(file)
-          @file = file
-
-          @attrs = {
-            'original_url' => file.url,
-            'path' => exported_url(file.url),
-            'rights' => file.rights
-          }
-        end
-
-        def attributes
-          case file.class.to_s
-          when 'Pageflow::ImageFile'
-            @attrs.merge! \
-              'file_size' => file.unprocessed_attachment_file_size,
-              'content_type' => file.unprocessed_attachment_content_type,
-              'width' => file.width,
-              'height' => file.height
-
-          when 'Pageflow::VideoFile'
-            @attrs.merge! \
-              'file_size' => file.attachment_on_s3_file_size,
-              'content_type' => file.attachment_on_s3_content_type,
-              'width' => file.width,
-              'height' => file.height,
-              'duration_in_ms' => file.duration_in_ms,
-              'sources' => [
-                { 'type' => 'application/x-mpegURL', 'original_url' => file.hls_playlist.url, 'path' => exported_url(file.hls_playlist.url) },
-                { 'type' => 'video/mp4', 'url' => file.mp4_high.url, 'path' => exported_url(file.mp4_high.url) }
-              ]
-            if file.poster.present?
-              @attrs.merge! \
-                'poster_original_url' => file.poster.url,
-                'poster_path' => exported_url(file.poster.url)
-            end
-
-          when 'Pageflow::AudioFile'
-            @attrs.merge! \
-              'file_size' => file.attachment_on_s3_file_size,
-              'content_type' => file.attachment_on_s3_content_type,
-              'duration_in_ms' => file.duration_in_ms,
-              'sources' => [
-                { 'type' => 'audio/ogg', 'original_url' => file.ogg.url, 'path' => exported_url(file.ogg.url) },
-                { 'type' => 'audio/mp4', 'original_url' => file.m4a.url, 'path' => exported_url(file.m4a.url) },
-                { 'type' => 'audio/mpeg', 'original_url' => file.mp3.url, 'path' => exported_url(file.mp3.url) }
-              ]
-
-          else
-            raise "Unknown file: #{file}"
-          end
-
-          @attrs
-        end
-
-        private
-
-        def exported_url(url)
-          warn "#{file.attributes} has nil url" and return if url.blank?
-
-          url
-            .sub('https:///djax', '/output.scrollytelling.com')
-            .sub(/\?\d{10}\z/, '')
-        end
-      end
-
       # https://github.com/codevise/pageflow/blob/f0342d71ac80d2f2b67f9a6a666706d7333f0ba7/app/models/pageflow/revision.rb#L134
-      def find_files(model, extra: [])
+      def find_files(model)
         model
           .includes(:usages)
           .references(:pageflow_file_usages)
           .where(pageflow_file_usages: {revision_id: revision.id})
           .map do |file|
-            ExportFile.new(file).attributes
+            Scrollytelling::Export::ExportFile.new(file).attributes
           end
       end
 
@@ -192,11 +128,11 @@ module Scrollytelling
       def manager_names
         account_managers
           .map do |user|
-          {
-            "first_name" => user.first_name,
-            "last_name" => user.last_name
-          }
-        end
+            {
+              "first_name" => user.first_name,
+              "last_name" => user.last_name
+            }
+          end
       end
 
       # Transform ActiveRecord result into array of hashes to export.
@@ -225,7 +161,7 @@ module Scrollytelling
               'title' => chapter.title,
               'pages' => pages(chapter)
             }
-        end
+          end
       end
     end
   end

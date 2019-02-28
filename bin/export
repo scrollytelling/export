@@ -40,18 +40,14 @@ step_1_build_index/canonical_urls $HOSTNAME | wget \
 cd $HOME/$HOSTNAME
 
 # STEP: obliterate links to self and yolo every story into a directory.
-ls *.html | parallel sed -i 's/{}//g' {}
+# ls *.html | parallel sed -i 's/{}//g' {}
 ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
-$HOME/scrollytelling-export/step_1_build_index/media_folders $HOSTNAME | xargs -I '{}' aws s3 sync s3://{} {}
+$HOME/export/step_1_build_index/media_folders $HOSTNAME | parallel "aws s3 sync s3://{} media.scrollytelling.com --debug"
 
 # STEP: sync output bucket. Bucket name is different from local path.
-$HOME/scrollytelling-export/step_1_build_index/output_folders $HOSTNAME | echo xargs -I '{}' aws s3 sync s3://storyboard-pageflow-production-out/{} $HOME/$HOSTNAME/output.scrollytelling.com/{}
-
-mkdir -p \
-  $HOME/$HOSTNAME/scrollytelling.link/entries \
-	$HOME/$HOSTNAME/output.scrollytelling.com
+$HOME/export/step_1_build_index/output_folders $HOSTNAME | parallel "aws s3 sync s3://storyboard-pageflow-production-out/{} output.scrollytelling.com --debug"
 
 # STEP: unpack static assets.
 unzip $HOME/scrollytelling-export/artifacts/assets.zip -d $HOME/$HOSTNAME/scrollytelling.link

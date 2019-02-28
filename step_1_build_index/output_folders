@@ -15,11 +15,15 @@ account.create_root_dirs!
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|
-    entry[type].each do |file|
-      next unless file['sources']
+    files = entry[type]
+    next if files.nil?
 
-      file['sources'].each do |source|
-        puts account.bucket_path(source['url'])
+    files.each do |file|
+      sources = file['sources']
+      next if sources.nil?
+
+      sources.each do |source|
+        puts file['path'] if file.present?
       end
     end
   end

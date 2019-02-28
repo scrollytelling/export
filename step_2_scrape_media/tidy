@@ -3,7 +3,7 @@
 require 'active_support'
 require 'active_support/core_ext/object/blank'
 
-require_relative "../lib/scrollytelling/export/export"
+require_relative "../lib/scrollytelling/export/exporter"
 require_relative "../lib/scrollytelling/export/account"
 
 require 'fileutils'

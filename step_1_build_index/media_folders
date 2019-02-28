@@ -12,21 +12,25 @@ require_relative "../lib/scrollytelling/export/account"
 account = Scrollytelling::Export::Account.new hostname
 account.create_root_dirs!
 
+# The purpose of this file is to print all paths to the media bucket.
+# One path per line.
+# The calling script can then sync the bucket to the local environment.
+#
+# media bucket paths:
+# /audio_files.url
+# /image_files.url
+# /video_files.url
+# /video_files.poster
+#
+# output bucket paths:
+# /audio_files./sources.url
+# /video_files./sources.url
+
 index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|
     entry[type].each do |file|
-      next if file.nil?
-
-      url = file['url']
-      if url.present?
-        puts account.bucket_path(url)
-      end
-
-      poster = file['poster']
-      if poster.present?
-        puts account.bucket_path(poster)
-      end
+      puts file['path'] if file.present?
     end
   end
 end

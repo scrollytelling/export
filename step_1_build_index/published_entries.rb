@@ -5,7 +5,7 @@ require 'fileutils'
 require 'json'
 
 require_relative "../lib/scrollytelling/export/account"
-require_relative "../lib/scrollytelling/export/export"
+require_relative "../lib/scrollytelling/export/exporter"
 require_relative "../lib/scrollytelling/export/story"
 
 puts
@@ -18,7 +18,7 @@ revisions = Pageflow::Revision
   .order(published_at: :desc)
 
 revisions.each_with_index do |revision, counter|
-  export = Scrollytelling::Export::Export.new revision
+  export = Scrollytelling::Export::Exporter.new revision
   account = Scrollytelling::Export::Account.new hostname
   account.output_directories!(export.slug)
 
