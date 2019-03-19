@@ -2,28 +2,34 @@
 
 ## Step 1 **(You are here)**
 
-Use the script to create an `index.json` for each Scrollytelling account.
+Use the script to create an `index.json` for a Scrollytelling account. It will
+be the focus point for the entire archive.
 
 To run it:
 
 ``` shell
-$SCROLLY_HOME/bin/rails runner published_entries.rb
+➜ $scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $hostname
+➜ step_1_build_index/media_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
+➜ step_1_build_index/output_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
+
 ```
 
-It assumes output dir is `../entries`.
+It assumes output dir is $HOME.
 
-When that's done, you should have one folder for every Scrollytelling account.
+## RESULT
 
-Inside those folders should be one folder for every published story. Good? We good.
-
-Time to fetch all those sweet media files.
-
-
-
-### Rebuilding chapters
-
-There is a separate script to update all chapters in all indexes.
+Afterwards you should see something like this:
 
 ``` shell
-ruby update_chapters.rb
+~/$hostname
+~/$hostname/index.json # if you only care about one thing...
+~/$hostname/archive # static html to browse
+~/$hostname/media.scrollytelling.com # photos used in the stories
+~/$hostname/output.scrollytelling.com # videos/audio used in the stories
+~/$hostname/scrollytelling.link # css/js used in the stories
+
 ```
+
+# Questioni?
+
+Joost Baaij <joost@spacebabies.nl>

@@ -35,15 +35,16 @@ It will become a plain old static HTML website that you can put on almost anythi
 
 After you've cloned this repository, do this.
 
+If you need more information, check each folder's README.
+
 # 🥇
 
+Build the JSON file that holds everything.
 
 ``` shell
-cd step_1_build_index
-${SCROLLY_HOME}/bin/rails runner published_entries.rb
+➜ $scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $hostname
 ```
 
-If you need more information, check each folder's README.
 
 # 🥈
 
@@ -52,13 +53,12 @@ tends to get very big, it is done per account. All variables need to be passed
 to the script on the command line.
 
 ``` shell
-cd step_2_scrape_media
-ACCOUNT=app.scrollytelling.com EMAIL=admin@scrollytelling.com PASSWORD=letmeinplease ruby scrape.rb
+➜ step_1_build_index/media_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
+➜ step_1_build_index/output_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
+
 ```
 
-This will sync all the media straight from S3. It assumes a `../entries` directory
-exists, with account directories under it. It will write a manifest of all
-media it finds into the `index.json` of each archive, too.
+This will sync all the media straight from S3.
 
 # 🥉
 
