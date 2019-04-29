@@ -23,7 +23,10 @@ index['entries'].each do |entry|
       next if sources.nil?
 
       sources.each do |source|
-        puts file['path'] if file.present?
+        puts source['path']
+          .sub('radion', 'main')
+          .split('/')[2,8]
+          .join('/') if file.present?
       end
     end
   end

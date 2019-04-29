@@ -22,21 +22,20 @@ module Scrollytelling
           return Dir.glob(story.screens.join('*.jpg'))
         end
 
-        # Grab all navigable pages.
-        nav = browser.nav(id: 'scrollytelling-navigation')
-        return unless nav.exists?
-
-        print "Attempting #{nav.as.length} screenshots in #{story.screens}: "
-
         browser.goto story.url
         browser.wait_until { |b| b.body.class_name.include? 'finished-loading' }
         browser.execute_script("document.querySelectorAll('.multimedia_alert').forEach(function(item){item.remove()})")
 
         # Grab the opening page
         browser.screenshot.save story.screens.join("#{$account.hostname}-#{story.slug}.png")
-``
+
+        # Grab all navigable pages.
+        nav = browser.nav(id: 'scrollytelling-navigation')
+        return unless nav.exists?
+
+        print "Attempting #{nav.as.length} screenshots in #{story.screens}: "
         nav.as.each_with_index do |link, index|
-          browser.goto link.href
+          browser.goto "#{story.url}#{link.href}"
           uri = URI(browser.url)
 
           browser.section(id: uri.fragment).wait_until { |s| s.class_name.include? 'active' }

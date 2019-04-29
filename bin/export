@@ -21,7 +21,7 @@ gem install bundler --conservative
 bundle check || bundle install
 
 # Setup variables to use throughout the script.
-$HOSTNAME = $1
+HOSTNAME=$1
 
 # STEP: query the database and build index.json
 ${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $HOSTNAME
@@ -44,10 +44,10 @@ cd $HOME/$HOSTNAME
 ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
 
 # STEP: sync media bucket
-$HOME/export/step_1_build_index/media_folders $HOSTNAME | parallel "aws s3 sync s3://{} media.scrollytelling.com --debug"
+$HOME/export/step_1_build_index/media_folders $HOSTNAME | parallel "aws s3 sync s3://{} ${HOME}/${HOSTNAME}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
-$HOME/export/step_1_build_index/output_folders $HOSTNAME | parallel "aws s3 sync s3://storyboard-pageflow-production-out/{} output.scrollytelling.com --debug"
+$HOME/export/step_1_build_index/output_folders $HOSTNAME | parallel "aws s3 sync s3://storyboard-pageflow-production-out{} ${HOME}/${HOSTNAME}/output.scrollytelling.com{} --dryrun"
 
 # STEP: unpack static assets.
 unzip $HOME/scrollytelling-export/artifacts/assets.zip -d $HOME/$HOSTNAME/scrollytelling.link
