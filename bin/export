@@ -26,25 +26,24 @@ HOSTNAME=$1
 # STEP: query the database and build index.json
 ${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $HOSTNAME
 
-# STEP: download HTML and story-specific assets
-step_1_build_index/canonical_urls $HOSTNAME | wget \
-  --adjust-extension \
-  --convert-links \
-  --directory-prefix="${HOME}" \
-  --mirror \
-  --page-requisites \
-  --timestamping \
-  --verbose \
-  --input-file=- || true
+# STEP: download index.html to story folders.
+step_1_build_index/canonical_urls $HOSTNAME \
+	| parallel http --download --output ~/$HOSTNAME/{/}/original.html GET {}
 
-cd $HOME/$HOSTNAME
-
-# STEP: obliterate links to self and yolo every story into a directory.
-# ls *.html | parallel sed -i 's/{}//g' {}
-ls *.html | grep -v 'index.html' | parallel mv {} {.}/index.html
+# STEP: cleanup the html
+find ~/$HOSTNAME -name "original.html" \
+	| parallel sed \
+		-e '5,9d' \
+		-e '12,14d' \
+		-e '4i"  <meta charset=\"utf-8\">"' \
+		-e 's\https://output.scrollytelling.io\/output.scrollytelling.com\g' \
+		-e 's\/media.scrollytelling\/media.scrollytelling\g' \
+		-e 's\/scrollytelling.link\/scrollytelling.link\g' \
+		{} > {/}/index.html
 
 # STEP: sync media bucket
-$HOME/export/step_1_build_index/media_folders $HOSTNAME | parallel "aws s3 sync s3://{} ${HOME}/${HOSTNAME}/{}"
+step_1_build_index/media_folders $HOSTNAME \
+	| parallel "aws s3 sync s3://{} ${HOME}/${HOSTNAME}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
 $HOME/export/step_1_build_index/output_folders $HOSTNAME | parallel "aws s3 sync s3://storyboard-pageflow-production-out{} ${HOME}/${HOSTNAME}/output.scrollytelling.com{} --dryrun"
