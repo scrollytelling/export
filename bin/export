@@ -30,28 +30,29 @@ ${HOME}/Rails/scrollytelling/bin/rails runner step_1_build_index/published_entri
 step_1_build_index/canonical_urls $HOSTNAME \
 	| parallel http --download --output ~/$HOSTNAME/{/}/original.html GET {}
 
-# STEP: cleanup the html
-find ~/$HOSTNAME -name "original.html" \
-	| parallel sed \
-		-e '5,9d' \
-		-e '12,14d' \
-		-e '4i"  <meta charset=\"utf-8\">"' \
-		-e 's\https://output.scrollytelling.io\/output.scrollytelling.com\g' \
-		-e 's\/media.scrollytelling\/media.scrollytelling\g' \
-		-e 's\/scrollytelling.link\/scrollytelling.link\g' \
-		{} > {/}/index.html
+# and the story-specific CSS
+step_1_build_index/canonical_urls $HOSTNAME \
+  | parallel http GET https://$HOSTNAME/entries/{/}.css \
+	"|"ruby ~/export/step_1_build_index/replace.rb ">"~/$HOSTNAME/entries/{/}.css
+
+# STEP: massage the HTML until it's fit for archiving.
+parallel ruby ~/export/step_1_build_index/replace.rb \
+	"<"{} ">"{//}/index.html ::: ~/$HOSTNAME/*/original.html
 
 # STEP: sync media bucket
-step_1_build_index/media_folders $HOSTNAME \
+#   add --dryrun before the last quote to see what it will do
+$HOME/export/step_1_build_index/media_folders $HOSTNAME \
 	| parallel "aws s3 sync s3://{} ${HOME}/${HOSTNAME}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
-$HOME/export/step_1_build_index/output_folders $HOSTNAME | parallel "aws s3 sync s3://storyboard-pageflow-production-out{} ${HOME}/${HOSTNAME}/output.scrollytelling.com{} --dryrun"
+#   add --dryrun before the last quote to see what it will do
+$HOME/export/step_1_build_index/output_folders $HOSTNAME \
+	| parallel "aws s3 sync s3://storyboard-pageflow-production-out{} ${HOME}/${HOSTNAME}/output.scrollytelling.com{}"
 
 # STEP: unpack static assets.
-unzip $HOME/scrollytelling-export/artifacts/assets.zip -d $HOME/$HOSTNAME/scrollytelling.link
-unzip $HOME/scrollytelling-export/artifacts/output.zip -d $HOME/$HOSTNAME/output.scrollytelling.com
-unzip $HOME/scrollytelling-export/artifacts/root.zip -d $HOME/$HOSTNAME
+unzip $HOME/export/artifacts/assets.zip -d $HOME/$HOSTNAME/scrollytelling.link
+unzip $HOME/export/artifacts/output.zip -d $HOME/$HOSTNAME/output.scrollytelling.com
+unzip $HOME/export/artifacts/root.zip -d $HOME/$HOSTNAME
 
 # STEP: make browser screenshots for each page of every story.
 cd $HOME/scrollytelling-export/step_2_screenshots

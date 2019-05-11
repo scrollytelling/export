@@ -43,6 +43,7 @@ module Scrollytelling
       def create_root_dirs!
         %w[
           archive
+          entries
           media.scrollytelling.com
           output.scrollytelling.com
           scrollytelling.link
