@@ -34,6 +34,9 @@ index['entries'].each do |entry|
       puts file['path']
         .split('/')[0,7]
         .join('/')
+      puts file['poster_path']
+        .split('/')[0,7]
+        .join('/') if file['poster_path']
     end
   end
 end
