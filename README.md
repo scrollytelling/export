@@ -9,7 +9,7 @@ It will become a plain old static HTML website that you can put on almost anythi
 - hu.scrollytelling.io/
   - afvallen via je onderbewustzijn/
   - afvallen via je onderbewustzijn/index.html
-  - afvallen via je onderbewustzijn/screens/
+  - afvallen via je onderbewustzijn/screenshots/
 
   - media.scrollytelling.com/
   - output.scrollytelling.com/

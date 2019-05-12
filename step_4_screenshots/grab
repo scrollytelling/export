@@ -7,6 +7,8 @@ require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
+Webdrivers.cache_time = 86_400
+
 require 'json'
 require_relative '../lib/scrollytelling/export/account'
 require_relative '../lib/scrollytelling/export/screenshot'
@@ -19,7 +21,14 @@ index = JSON.parse($account.index.read)
 index['entries'].each do |entry|
   story = Scrollytelling::Export::Story.new(entry)
   screenshot = Scrollytelling::Export::Screenshot.new story
-  entry['screenshots'] = screenshot.create_all!
-end
+  screenshots = screenshot.create_all!.map do |file|
+    path = file.split('/')
+    path.shift(3)
+    path.join('/')
+  end
+  entry['screenshots'] = screenshots
+  $account.index.write(JSON.pretty_generate(index), mode: 'wt')
 
-$account.index.write(JSON.pretty_generate(index), mode: 'wt')
+  system("exiftool -ImageDescription=\"You're seeing a screenshot of the online story #{story.title}. It was made using a scripted Chrome browser in the process of archiving the full story.\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
+
+end

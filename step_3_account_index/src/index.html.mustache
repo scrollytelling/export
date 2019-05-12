@@ -63,10 +63,10 @@
               <p>{{ entries.length}} entries</p>
               <div class="list">
                 {{#entries}}
-                <article class="media">
+                <article class="media">hots
                   <div class="media-left gallery">
-                    <a rel="archives" href="{{ slug }}/screens/{{ host }}-{{ slug }}.jpg" title="Screenshot of {{ title }} opening page">
-                      <img src="{{ slug }}/screens/{{ host }}-{{ slug }}_280.jpg" alt="Thumbnail image of {{ title }} opening page">
+                    <a rel="archives" href="{{ slug }}/screenshots/{{ host }}-{{ slug }}.jpg" title="Screenshot of {{ title }} opening page">
+                      <img src="{{ slug }}/screenshots/{{ host }}-{{ slug }}_280.jpg" alt="Thumbnail image of {{ title }} opening page">
                       <!-- <figure class="image">
                       </figure> -->
                     </a>
@@ -91,14 +91,13 @@
           <div class="column is-6-desktop">
             <img src="/archive/scrollytelling.png" alt="Scrollytelling">
             <p class="has-text-weight-bold">Scrollytelling was Software-as-a-Service for creating engaging multimedia stories.</p>
-            <p>You are looking at the archived works of {{account.name}}. The fact that we shuttered the business does not mean we drop mike and walk away, does it? No, it' doesn't. We invested a lot of time in making sure these
-          works can live on as nothing-special-static-html. A Raspberry Pi could host it!</p>
+            <p>You are looking at the archived works of {{account.name}}. They look identical to the stories, down to the last pixel. But behind the scenes they are in a different form; "frozen in time" if you will. It makes them hard to alter, but easy to keep online.</p>
         </div>
           <div class="column is-3-desktop">
             <div class="content">
               <h3>Archive</h3>
-              <p>Curated on <time datetime="{{ info.created_at }}">{{ info.created_at }}</time>
-                by {{#info.curators}}<a href="mailto:{{ email }}">{{ name }}</a>{{/info.curators}}.</p>
+              <p>Curated on <time datetime="{{ archive.created_at }}">{{ archive.created_at }}</time>
+                by {{#archive.curators}}<a href="mailto:{{ email }}">{{ name }}</a>{{/archive.curators}}.</p>
               <p>Also available as <a href="index.atom">RSS (Atom)</a> and <a href="index.json">JSON (JavaScript)</a>.</p>
             </div>
           </div>

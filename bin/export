@@ -63,6 +63,10 @@ unzip ./artifacts/root.zip -d $ACCOUNT
 # STEP: make browser screenshots for each page of every story.
 ./step_4_screenshots/grab $cname
 
+# Convert the PNGs to JPGs
+parallel vips jpegsave {} {.}.jpg ::: $ACCOUNT/*/screenshots/*.png
+vipsthumbnail $ACCOUNT/*/screenshots/*.png --format=%s_280.jpg --size=280
+
 # STEP: remove unwanted artifacts
 rm robots.txt
 

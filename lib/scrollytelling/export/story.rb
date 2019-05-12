@@ -3,19 +3,23 @@ module Scrollytelling
     # Equally simple wrapper around a story.
     Story = Struct.new(:entry) do
       def slug
-        @slug ||= entry['slug']
+        entry['slug']
+      end
+
+      def title
+        entry['title']
       end
 
       def path
         $account.root.join(slug)
       end
 
-      def screens
-        path.join('screens')
+      def screenshots
+        path.join('screenshots')
       end
 
       def url
-        "https://#{$account.hostname}/#{slug}"
+        entry['canonical_url']
       end
     end
   end

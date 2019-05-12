@@ -19,10 +19,6 @@ module Scrollytelling
         @archive_path ||= root.join('archive')
       end
 
-      def screenshots
-        @screenshots ||= archive_path.join('screenshots')
-      end
-
       # it's not the indexpage of a story, but index for the entire account.
       def index
         root.join("index.json")

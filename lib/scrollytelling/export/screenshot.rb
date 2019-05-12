@@ -1,6 +1,5 @@
 require 'fileutils'
 require 'watir'
-require 'vips'
 
 module Scrollytelling
   module Export
@@ -17,66 +16,44 @@ module Scrollytelling
 
       # Create all screenshots for the Scrollytelling.
       def create_all!
-        FileUtils.mkdir_p story.screens
-        if File.exist?(story.screens.join("#{$account.hostname}-#{story.slug}.jpg"))
-          return Dir.glob(story.screens.join('*.jpg'))
+        FileUtils.mkdir_p story.screenshots
+        screenshot_story = story.screenshots.join("#{$account.hostname}-#{story.slug}.png")
+
+        if screenshot_story.exist?
+          found = Dir.glob(story.screenshots.join('*-page-*.png'))
+          found.unshift(screenshot_story.to_s)
+          return found
         end
 
         browser.goto story.url
-        browser.wait_until { |b| b.body.class_name.include? 'finished-loading' }
         browser.execute_script("document.querySelectorAll('.multimedia_alert').forEach(function(item){item.remove()})")
-
-        # Grab the opening page
-        browser.screenshot.save story.screens.join("#{$account.hostname}-#{story.slug}.png")
 
         # Grab all navigable pages.
         nav = browser.nav(id: 'scrollytelling-navigation')
         return unless nav.exists?
+        created = []
 
-        print "Attempting #{nav.as.length} screenshots in #{story.screens}: "
+        puts "#{nav.as.length} screenshots in #{story.screenshots}"
         nav.as.each_with_index do |link, index|
-          browser.goto "#{story.url}#{link.href}"
-          uri = URI(browser.url)
+          perma_id = link.href[/#(\d*)\z/, 1]
+          filename = [story.slug, 'page', index + 1, "#{perma_id}.png"].join('-')
+          next if File.exist?(story.screenshots.join(filename))
 
-          browser.section(id: uri.fragment).wait_until { |s| s.class_name.include? 'active' }
-          browser.screenshot.save story.screens.join("#{story.slug}-page#{index + 1}_#{uri.fragment}.png")
-          print "#{index+1} "
+          browser.goto link.href
+	        sleep 5
+          screenshot = browser.screenshot.save(story.screenshots.join(filename))
+          created << screenshot.path
+          puts "✅ #{screenshot.path}"
         end
 
-        puts
+        # Grab the opening page; when this exists, all screens are complete.
+        browser.goto story.url
+        sleep 5
+        screenshot = browser.screenshot.save(screenshot_story)
+        created.unshift screenshot.path
+        puts "✅ #{screenshot.path}"
 
-        filenames = []
-        cap = browser.driver.capabilities
-
-        Dir.glob(story.screens.join('*.png')).each do |filename|
-          image = Vips::Image.new_from_file(filename)
-
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-XPTitle', story.entry['title']
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-XPComment', story.url
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-ImageDescription', "You're seeing a screenshot of the online story #{story.entry['title']}. It was made using a scripted Chrome browser in the process of archiving the full story."
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-XPKeywords', %w(scrollytelling pageflow Screenshots).join(',')
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-Software', [cap.browser_name, cap.version, cap.platform].join('/')
-          image.set_type GObject::GSTR_TYPE,
-            'exif-ifd0-Copyright', 'CC-BY-4.0'
-
-          options = { Q: 85, interlace: true, optimize_coding: true }
-          image.jpegsave filename.sub('.png', '.jpg'), options
-          filenames << image.filename
-
-          thumbnail = image.thumbnail_image 280
-          thumbnail.jpegsave filename.sub('.png', '_280.jpg'), options.merge(strip: true)
-
-          # command line:
-          # ls **/screens/*.png | xargs vipsthumbnail --size=280 --output='%s_280.jpg[Q=85,optimize_coding,interlace]' --delete --rotate
-
-        end
-
-        filenames
+        created
       rescue Watir::Wait::TimeoutError => error
         warn error.to_s
       end

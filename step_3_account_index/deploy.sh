@@ -1,37 +1,29 @@
-#!/usr/bin/env zsh
-#
-## And now! The script!!
-set -x
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-# Shenanigans for all the files in all the accounts!
-sed -ni '/csrf/!p' ../entries/*/*.html # strip CSRF tokens
-sed -ni '/PAGEFLOW_EDITOR/!p' ../entries/*/*.html # strip editor JS
+if [ $# -eq 0 ]
+then
+	echo "This script generates a landing page for a Scrollytelling archive."
+	echo
+	echo "Pass the account cname you wish to export as paramater."
+	echo "Usage: $0 <cname>"
+	echo "  e.g. $0 stories.example.com"
+	echo
+	exit 1
+fi
 
-sed -i 's\http://media\media\g' ../entries/**/*.html
-sed -i 's\https://media\media\g' ../entries/**/*.html
-sed -i 's\http://output\output\g' ../entries/**/*.html
-sed -i 's\https://output\output\g' ../entries/**/*.html
-sed -i 's\/scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
-sed -i 's\../scrollytelling.link\scrollytelling.link\g' ../entries/**/*.html
-sed -i 's\/media\media\g' ../entries/**/*.css
-sed -i 's\/media\media\g' ../entries/**/*.js
-sed -i 's\/media\media\g' ../entries/**/*.html
+set -vx
 
-find ../entries -type d -name audio -print0 | xargs -0 /bin/rm -rf
-find ../entries -type d -name videos -print0 | xargs -0 /bin/rm -rf
+root_dir=$HOME/$1
 
 webpack
 
-for account in ../entries/*
-do
-  node-sass ./src/main.scss "${account}/scrollies.css"
-  postcss --use autoprefixer --output "${account}/scrollies.css" "${account}/scrollies.css"
-  cp dist/bundle.js ${account}
-  mustache "${account}/index.json" ./src/index.html.mustache > "${account}/index.html"
-  mustache "${account}/index.json" ./src/index.atom.mustache > "${account}/index.atom"
-  mustache "${account}/index.json" ./src/humans.txt.mustache > "${account}/humans.txt"
+node-sass ./src/main.scss $root_dir/archive/scrollies.css
+postcss --use autoprefixer --output "${root_dir}/archive/archive.css" "${root_dir}/archive/archive.css"
+cp dist/bundle.js ${root_dir}/archive
+cp images/scrollytelling.png ${root_dir}/archive
 
-  # gzip --keep --force $account/**/*.html $account/**/*.json $account/**/*.xml $account/site.webmanifest
-  # gzip --keep --force $account/**/*.svg
-  # gzip --keep --force $account/humans.txt
-done
+mustache "${root_dir}/index.json" ./src/index.html.mustache > "${root_dir}/index.html"
+mustache "${root_dir}/index.json" ./src/index.atom.mustache > "${root_dir}/index.atom"
+mustache "${root_dir}/index.json" ./src/humans.txt.mustache > "${root_dir}/humans.txt"
