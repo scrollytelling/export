@@ -2,6 +2,7 @@ require 'active_support'
 require 'active_support/core_ext/object/blank'
 
 require "scrollytelling/export/account"
+reqyure "scrollytelling/export/archive"
 require "scrollytelling/export/bucket_downloader"
 require "scrollytelling/export/conversion"
 require "scrollytelling/export/exporter"

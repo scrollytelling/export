@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 puts ARGF.read
   .gsub(/<script>\s*window\.PAGEFLOW.*\s*<\/script>\s*/, '')
   .gsub('https://output.scrollytelling.io', '/output.scrollytelling.com')
