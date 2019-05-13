@@ -23,12 +23,13 @@ index['entries'].each do |entry|
   screenshot = Scrollytelling::Export::Screenshot.new story
   screenshots = screenshot.create_all!.map do |file|
     path = file.split('/')
-    path.shift(3)
+    path.shift(4)
+    path.unshift('') # to get an absolute path
     path.join('/')
   end
   entry['screenshots'] = screenshots
   $account.index.write(JSON.pretty_generate(index), mode: 'wt')
 
-  system("exiftool -ImageDescription=\"You're seeing a screenshot of the online story #{story.title}. It was made using a scripted Chrome browser in the process of archiving the full story.\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
+  system("exiftool -ImageDescription=\"Large screenshot of the online story «#{story.title}». It was made using a scripted Chrome browser in the process of archiving the full story.\" -CreateDate=\"#{Time.now.to_s[0,19]}\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
 
 end
