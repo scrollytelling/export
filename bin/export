@@ -67,14 +67,10 @@ unzip ./artifacts/root.zip -d $ACCOUNT
 parallel vips jpegsave {} {.}.jpg ::: $ACCOUNT/*/screenshots/*.png
 vipsthumbnail $ACCOUNT/*/screenshots/*.png --format=%s_280.jpg --size=280
 
-# STEP: remove unwanted artifacts
-rm robots.txt
-
 # STEP: compile templates based on exported information.
-cd step_3_account_index
-# NPM, for Node
-npm -v
-npm install -g npm-check
-npm-check
+cd $HOME/archive
+./deploy.sh $cname
+cd -
 
-npm run mustache:all
+# STEP: export account-specific slice of the database
+bin/70_database.sh $cname

@@ -24,18 +24,6 @@ module Scrollytelling
         root.join("index.json")
       end
 
-      # Makes a media URL work in the archive.
-      # def bucket_path(url)
-      #   url
-      #     .sub('/media.scrollytelling.io', 'media.scrollytelling.com')
-      #     .sub('/output.scrollytelling.io/', '')
-      #     .sub(/\?\d{10}\z/, '')
-      #     .sub(/\/original.*\z/, '')
-      #     .sub(/\/hls-playlist\.m3u8\z/, '')
-      #     .sub(/\/high\.mp4\z/, '')
-      #     .sub(/\/audio\.\w{3}*\z/, '')
-      # end
-
       def create_root_dirs!
         %w[
           archive
