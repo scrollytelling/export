@@ -74,3 +74,22 @@ cd -
 
 # STEP: export account-specific slice of the database
 bin/70_database.sh $cname
+
+
+## HOSTING
+
+# Sync to our long-term archive
+rsync \
+  --chmod=a=rwX \
+  --compress \
+  --delete \
+  --human-readable \
+  --no-owner \
+  --partial-dir=.rsync \
+  --progress \
+  --recursive \
+  --safe-links \
+  --times \
+  --verbose \
+  $cname $remote_location
+
