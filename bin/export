@@ -71,14 +71,14 @@ unzip -u ./artifacts/root.zip -d $dest
 ./step_4_screenshots/grab $cname
 
 # Convert the PNGs to JPGs
-parallel vips jpegsave {} {.}.jpg ::: "${dest}/*/screenshots/*.png"
-vipsthumbnail "${dest}/**/screenshots/*.png" --format=%s_280.jpg --size=280
+parallel vips jpegsave {} {.}.jpg ::: ${dest}/**/screenshots/*.png
+vipsthumbnail ${dest}/**/screenshots/*.png --format=%s_280.jpg --size=280
 
 # STEP: Generate checksums, to verify archive authenticity.
 cd $dest
 rm --force SHA512SUMS
-ls */*.html parallel "sha512sum --text {} >>SHA512SUMS"
-ls media.scrollytelling.com/**/original/* parallel "sha512sum --binary {} >>SHA512SUMS"
+ls */*.html | parallel "sha512sum --text {} >>SHA512SUMS"
+ls media.scrollytelling.com/**/original/* | parallel "sha512sum --binary {} >>SHA512SUMS"
 cd -
 
 # STEP: compile templates based on exported information.
