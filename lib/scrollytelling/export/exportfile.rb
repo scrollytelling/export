@@ -7,7 +7,7 @@ module Scrollytelling
         @file = file
 
         @attrs = {
-          'original_url' => file.url(host: 'media.scrollytelling.com'),
+          'original_url' => file.url.sub('https:///radion', 'https://media.scrollytelling.com/main'),
           'path' => media(file.url),
           'rights' => file.rights
         }

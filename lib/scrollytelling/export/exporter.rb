@@ -82,34 +82,24 @@ module Scrollytelling
       end
 
       def audio_files
-        @audio_files ||= find_files(Pageflow::AudioFile)
+        @audio_files ||= revision.audio_files.map do |file|
+          Scrollytelling::Export::ExportFile.new(file).attributes
+        end
       end
 
       def video_files
-        @video_files ||= find_files(Pageflow::VideoFile)
+        @video_files ||= revision.video_files.map do |file|
+          Scrollytelling::Export::ExportFile.new(file).attributes
+        end
       end
 
       def image_files
-        @image_files ||= find_files(
-          Pageflow::ImageFile
-            .where(
-	      unprocessed_attachment_content_type: ['image/jpeg', 'image/png']
-	    )
-        )
+        @image_files ||= revision.image_files.map do |file|
+          Scrollytelling::Export::ExportFile.new(file).attributes
+        end
       end
 
       private
-
-      # https://github.com/codevise/pageflow/blob/f0342d71ac80d2f2b67f9a6a666706d7333f0ba7/app/models/pageflow/revision.rb#L134
-      def find_files(model)
-        model
-          .includes(:usages)
-          .references(:pageflow_file_usages)
-          .where(pageflow_file_usages: {revision_id: revision.id})
-          .map do |file|
-            Scrollytelling::Export::ExportFile.new(file).attributes
-          end
-      end
 
       # Transform ActiveRecord result into array of hashes to export.
       # This is a nested structure, going all the way to this entry's pages.
