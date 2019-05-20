@@ -30,7 +30,11 @@ module Scrollytelling
       # Create all screenshots for the Scrollytelling.
       def create_all!
         if title_card_path.exist?
-          Dir.glob(story.screenshots.join("*page*.png")).each do |path|
+          Dir
+            .glob(story.screenshots.join("*page*.png"))
+            .sort_by { |path| path.scan(/\d+/).first.to_i }
+            .each do |path|
+
             @paths[:pages] << absolute(path)
           end
           return

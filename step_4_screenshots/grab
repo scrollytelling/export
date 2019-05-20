@@ -25,6 +25,6 @@ index['entries'].each do |entry|
   entry['screenshots'] = screenshot.paths
   $account.index.write(JSON.pretty_generate(index), mode: 'wt')
 
-  system("exiftool -overwrite_original -Title=\"#{story.title}\" -Language=#{entry['locale']} -Category=screenshot -ImageDescription=\"Large screenshot of the online story «#{story.title}». It was made using a scripted Chrome browser in the process of archiving the full story.\" -CreateDate=\"#{Time.now.to_s[0,19]}\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
+  system("exiftool -overwrite_original -Title=\"#{story.title}\" -Language=#{entry['locale']} -XMP:category=screenshot -ImageDescription=\"Large screenshot of the online story «#{story.title}». It was made using a scripted Chrome browser in the process of archiving the full story.\" -CreateDate=\"#{Time.now.to_s[0,19]}\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
 
 end
