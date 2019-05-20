@@ -5,6 +5,7 @@ module Scrollytelling
   module Export
     # Document an entire Scrollytelling by way of screenshots.
     class Screenshot
+      attr_accessor :paths
       attr_reader :story, :browser
 
       def initialize(story)
@@ -12,18 +13,30 @@ module Scrollytelling
         @browser = Watir::Browser.new :chrome,
           headless: true,
           options: { args: ['--window-size=1600,1080'] }
+        @paths = { title_card: absolute(title_card_path), pages: [] }
+      end
+
+      def title_card_path
+        story.screenshots.join("#{$account.hostname}-#{story.slug}.png")
+      end
+
+      def absolute(path)
+        elements = path.to_s.split('/')
+        elements.shift(4)
+        elements.unshift('')
+        elements.join('/')
       end
 
       # Create all screenshots for the Scrollytelling.
       def create_all!
-        FileUtils.mkdir_p story.screenshots
-        screenshot_story = story.screenshots.join("#{$account.hostname}-#{story.slug}.png")
-
-        if screenshot_story.exist?
-          found = Dir.glob(story.screenshots.join('*-page-*.png'))
-          found.unshift(screenshot_story.to_s)
-          return found
+        if title_card_path.exist?
+          Dir.glob(story.screenshots.join("*page*.png")).each do |path|
+            @paths[:pages] << absolute(path)
+          end
+          return
         end
+
+        FileUtils.mkdir_p story.screenshots
 
         browser.goto story.url
         browser.execute_script("document.querySelectorAll('.multimedia_alert').forEach(function(item){item.remove()})")
@@ -31,7 +44,6 @@ module Scrollytelling
         # Grab all navigable pages.
         nav = browser.nav(id: 'scrollytelling-navigation')
         return unless nav.exists?
-        created = []
 
         puts "#{nav.as.length} screenshots in #{story.screenshots}"
         nav.as.each_with_index do |link, index|
@@ -40,20 +52,18 @@ module Scrollytelling
           next if File.exist?(story.screenshots.join(filename))
 
           browser.goto link.href
-	        sleep 5
+          sleep 5
           screenshot = browser.screenshot.save(story.screenshots.join(filename))
-          created << screenshot.path
+          @paths[:pages] << absolute(screenshot.path)
           puts "✅ #{screenshot.path}"
         end
 
         # Grab the opening page; when this exists, all screens are complete.
         browser.goto story.url
         sleep 5
-        screenshot = browser.screenshot.save(screenshot_story)
-        created.unshift screenshot.path
+        screenshot = browser.screenshot.save(title_card_path)
+        @paths[:title] = absolute(screenshot.path)
         puts "✅ #{screenshot.path}"
-
-        created
       rescue Watir::Wait::TimeoutError => error
         warn error.to_s
       end

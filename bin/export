@@ -16,61 +16,78 @@ fi
 
 set -vx
 
-## Some paths you might want to change
-SCROLLY="${HOME}/Rails/Scrollytelling"
-DEST="${HOME}"
-ACCOUNT="${HOME}/${cname}"
+# Required software:
+# - ruby
+# - AWS CLI
+# - libvips
+# - GNU parallel
+# - curl
+
+# Setup variables to use throughout the script.
+cname=$1
+dest="${HOME}/${cname}"
+SCROLLY="${HOME}/Rails/scrollytelling"
 
 # Bundler, for Ruby
 gem install bundler --conservative
 bundle check || bundle install
 
-# Setup variables to use throughout the script.
-cname=$1
-
-# STEP: query the database and build index.json
-$SCROLLY/bin/rails runner ./step_1_build_index/published_entries.rb $cname
+if [ ! -f "${dest}/index.json" ]
+then
+	# STEP: query the database and build index.json
+	$SCROLLY/bin/rails runner ./step_1_build_index/published_entries.rb $cname
+fi
 
 # STEP: download index.html to story folders.
 step_2_download_story/canonical_urls $cname \
-	| parallel http --download --output $ACCOUNT/{/}/original.html GET {}
+	| parallel http --download --output $dest/{/}/original.html GET {}
 
 # and the story-specific CSS
 step_2_download_story/canonical_urls $cname \
   | parallel http GET https://$cname/entries/{/}.css \
-	"|"ruby ./step_2_download_story/replace.rb ">"$ACCOUNT/entries/{/}.css
+	"|"ruby ./step_2_download_story/replace.rb ">"$dest/entries/{/}.css
 
 # STEP: massage the HTML until it's fit for archiving.
 parallel ruby ./step_2_download_story/replace.rb \
-	"<"{} ">"{//}/index.html ::: $ACCOUNT/*/original.html
+	"<"{} ">"{//}/index.html ::: $dest/*/original.html
 
 # STEP: sync media bucket
 #   add --dryrun before the last quote to see what it will do
 ./step_3_sync_assets/media_folders $cname \
-	| parallel "aws s3 sync s3://{} ${ACCOUNT}/{}"
+	| parallel "aws s3 sync s3://{} ${dest}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
 #   add --dryrun before the last quote to see what it will do
 ./step_3_sync_assets/output_folders $cname \
 	| parallel "aws s3 sync s3://storyboard-pageflow-production-out{} \
-	${ACCOUNT}/output.scrollytelling.com{}"
+	${dest}/output.scrollytelling.com{}"
 
 # STEP: unpack static assets.
-unzip ./artifacts/assets.zip -d $ACCOUNT/scrollytelling.link
-unzip ./artifacts/output.zip -d $ACCOUNT/output.scrollytelling.com
-unzip ./artifacts/root.zip -d $ACCOUNT
+unzip -u ./artifacts/assets.zip -d $dest/scrollytelling.link
+unzip -u ./artifacts/output.zip -d $dest/output.scrollytelling.com
+unzip -u ./artifacts/root.zip -d $dest
 
 # STEP: make browser screenshots for each page of every story.
 ./step_4_screenshots/grab $cname
 
 # Convert the PNGs to JPGs
-parallel vips jpegsave {} {.}.jpg ::: $ACCOUNT/*/screenshots/*.png
-vipsthumbnail $ACCOUNT/*/screenshots/*.png --format=%s_280.jpg --size=280
+parallel vips jpegsave {} {.}.jpg ::: "${dest}/*/screenshots/*.png"
+vipsthumbnail "${dest}/**/screenshots/*.png" --format=%s_280.jpg --size=280
+
+# STEP: Generate checksums, to verify archive authenticity.
+cd $dest
+rm --force SHA512SUMS
+ls */*.html parallel "sha512sum --text {} >>SHA512SUMS"
+ls media.scrollytelling.com/**/original/* parallel "sha512sum --binary {} >>SHA512SUMS"
+cd -
 
 # STEP: compile templates based on exported information.
 cd $HOME/archive
 ./deploy.sh $cname
 cd -
+
+# STEP: backdate timestamps on archived files
+./step_4_ctimes/run.rb $cname
 
 # STEP: export account-specific slice of the database
 bin/70_database.sh $cname
@@ -92,4 +109,3 @@ rsync \
   --times \
   --verbose \
   $cname $remote_location
-

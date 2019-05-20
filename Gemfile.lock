@@ -1,9 +1,9 @@
 PATH
   remote: .
   specs:
-    scrollytelling-export (0.9.0)
-      activesupport (~> 4.2.0)
+    scrollytelling-export (1.1.0)
       pageflow (~> 12.2.0)
+      rails (~> 4.2.11)
 
 GEM
   remote: https://rubygems.org/
@@ -145,9 +145,8 @@ GEM
       has_scope (~> 0.6)
       railties (>= 4.2, < 5.3)
       responders
-    jbuilder (2.8.0)
+    jbuilder (2.9.1)
       activesupport (>= 4.2.0)
-      multi_json (>= 1.2)
     jquery-fileupload-rails (0.4.1)
       actionpack (>= 3.1)
       railties (>= 3.1)
@@ -365,7 +364,7 @@ GEM
     watir (6.16.5)
       regexp_parser (~> 1.2)
       selenium-webdriver (~> 3.6)
-    webdrivers (3.9.1)
+    webdrivers (3.9.3)
       nokogiri (~> 1.6)
       rubyzip (~> 1.0)
       selenium-webdriver (~> 3.0)

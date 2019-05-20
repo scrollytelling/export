@@ -1,5 +1,5 @@
 module Scrollytelling
   module Export
-    VERSION = "0.9.0"
+    VERSION = "1.1.0"
   end
 end
