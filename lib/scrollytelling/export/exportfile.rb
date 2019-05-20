@@ -7,7 +7,7 @@ module Scrollytelling
         @file = file
 
         @attrs = {
-          'original_url' => file.url,
+          'original_url' => file.url(host: 'media.scrollytelling.com'),
           'path' => media(file.url),
           'rights' => file.rights
         }
