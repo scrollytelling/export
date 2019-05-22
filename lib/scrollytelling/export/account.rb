@@ -1,5 +1,6 @@
 require 'pathname'
 require 'fileutils'
+require 'json'
 
 module Scrollytelling
   module Export
@@ -22,6 +23,14 @@ module Scrollytelling
       # it's not the indexpage of a story, but index for the entire account.
       def index
         root.join("index.json")
+      end
+
+      # Array of URLs, optionally filtered on publication_state.
+      def canonical_urls(publication_state = nil)
+        archive = JSON.parse(index.read)
+        archive['entries'].map do |entry|
+          entry['canonical_url'] if publication_state && entry['publication_state'] == publication_state
+        end.compact
       end
 
       def create_root_dirs!

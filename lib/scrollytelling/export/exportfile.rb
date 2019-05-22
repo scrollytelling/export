@@ -5,9 +5,10 @@ module Scrollytelling
 
       def initialize(file)
         @file = file
-
+        original_url = file.url
+	original_url.sub! 'https:///radion', 'https://media.scrollytelling.com/main' unless original_url.nil?
         @attrs = {
-          'original_url' => file.url.sub('https:///radion', 'https://media.scrollytelling.com/main'),
+          'original_url' => original_url,
           'path' => media(file.url),
           'rights' => file.rights
         }

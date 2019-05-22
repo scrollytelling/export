@@ -33,49 +33,22 @@ It will become a plain old static HTML website that you can put on almost anythi
 
 # USAGE
 
-After you've cloned this repository, do this.
+After you've cloned this repository, do this:
+
+``` shell
+bin/export cname-to-be-exported
+bin/export stories.scrollytelling.com # for example
+```
+
+Now sit back and enjoy the show! Your already tiny contribution as a human is now complete. 🏅 Bow for the all-mighty robots, doing thankless dirty work without complaining.
 
 If you need more information, check each folder's README.
-
-# 🥇
-
-Build the JSON file that holds everything.
-
-``` shell
-➜ $scrollytelling/bin/rails runner step_1_build_index/published_entries.rb $hostname
-```
-
-
-# 🥈
-
-Next we need to scrape Scrollytelling admin for media files. Because this
-tends to get very big, it is done per account. All variables need to be passed
-to the script on the command line.
-
-``` shell
-➜ step_1_build_index/media_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
-➜ step_1_build_index/output_folders $hostname | parallel "aws s3 sync s3://{} ${HOME}/${hostname}/{}"
-
-```
-
-This will sync all the media straight from S3.
-
-# 🥉
-
-Last order of business is to generate a nice indexpage for the entire account.
-Also, a RSS feed is added.
-
-``` shell
-cd step_3_account_index
-npm install
-npm run deploy
-```
 
 # RESULTS!
 
 A folder, named after the hostname of the story, will have been created.
 
-Too see the results of your leeching:
+To see the results of your effort:
 
 ``` shell
 cd <hostname of the story>

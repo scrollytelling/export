@@ -30,10 +30,12 @@ index = JSON.parse(account.index.read)
 index['entries'].each do |entry|
   %w[audio_files image_files video_files].each do |type|
     entry[type].each do |file|
-      next unless file.present?
+      next unless file.present? && file['path'].present?
+
       puts file['path']
         .split('/')[0,7]
         .join('/')
+
       puts file['poster_path']
         .split('/')[0,7]
         .join('/') if file['poster_path']

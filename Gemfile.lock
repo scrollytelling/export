@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    scrollytelling-export (1.1.0)
+    scrollytelling-export (1.2.0)
       pageflow (~> 12.2.0)
       rails (~> 4.2.11)
 

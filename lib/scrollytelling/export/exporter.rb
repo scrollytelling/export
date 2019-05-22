@@ -33,6 +33,7 @@ module Scrollytelling
           "summary" => revision.summary.presence,
           "slug" => slug,
           "canonical_url" => canonical_url,
+          "publication_state" => entry.to_model.publication_state,
           "created_at" => revision.entry.created_at.iso8601,
           "updated_at" => revision.entry.updated_at.iso8601,
           "published_at" => revision.published_at.iso8601,
@@ -58,7 +59,7 @@ module Scrollytelling
             "id" => SecureRandom.uuid,
             "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
             "created_at" => Time.current.iso8601,
-            "format" => '1.1.0',
+            "format" => '1.2.0',
             "curators" => [
               { "name" => 'Joost Baaij', "email" => 'joost@spacebabies.nl'}
             ],

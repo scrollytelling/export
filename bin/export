@@ -23,6 +23,12 @@ set -vx
 # - GNU parallel
 # - curl
 
+if ! [ -x "$(command -v http)" ]
+then
+	echo "Couldn't find HTTPie, which is required to proceed."
+	exit 1
+fi
+
 # Setup variables to use throughout the script.
 cname=$1
 dest="${HOME}/${cname}"
@@ -39,12 +45,12 @@ then
 fi
 
 # STEP: download index.html to story folders.
-step_2_download_story/canonical_urls $cname \
-	| parallel http --download --output $dest/{/}/original.html GET {}
+bin/20_canonical_urls.rb $cname \
+	| parallel http --ignore-stdin --timeout 60 --download --output $dest/{/}/original.html GET {}
 
 # and the story-specific CSS
-step_2_download_story/canonical_urls $cname \
-  | parallel http GET https://$cname/entries/{/}.css \
+bin/20_canonical_urls.rb $cname \
+  | parallel http --ignore-stdin --timeout 60 GET https://$cname/entries/{/}.css \
 	"|"ruby ./step_2_download_story/replace.rb ">"$dest/entries/{/}.css
 
 # STEP: massage the HTML until it's fit for archiving.
@@ -71,8 +77,11 @@ unzip -u ./artifacts/root.zip -d $dest
 ./step_4_screenshots/grab $cname
 
 # Convert the PNGs to JPGs
-parallel vips jpegsave {} {.}.jpg ::: ${dest}/**/screenshots/*.png
-vipsthumbnail ${dest}/**/screenshots/*.png --format=%s_280.jpg --size=280
+if [ -x "$(command -v vips)" ]
+then
+	parallel vips jpegsave {} {.}.jpg ::: ${dest}/**/screenshots/*.png
+	vipsthumbnail ${dest}/**/screenshots/*.png --format=%s_280.jpg --size=280
+fi
 
 # STEP: Generate checksums, to verify archive authenticity.
 cd $dest
