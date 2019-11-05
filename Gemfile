@@ -6,9 +6,6 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 gem 'http'
-
-gem 'watir'
-gem 'webdrivers'
+gem 'ferrum'
 gem 'mimemagic'
 gem 'ruby-vips'
-

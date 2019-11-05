@@ -21,6 +21,10 @@ module Scrollytelling
       def url
         entry['canonical_url']
       end
+
+      def keywords
+        entry['keywords']
+      end
     end
   end
 end

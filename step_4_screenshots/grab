@@ -7,14 +7,13 @@ require 'rubygems'
 require 'bundler/setup'
 Bundler.require(:default)
 
-Webdrivers.cache_time = 86_400
-
 require 'json'
 require_relative '../lib/scrollytelling/export/account'
 require_relative '../lib/scrollytelling/export/screenshot'
 require_relative '../lib/scrollytelling/export/story'
 
 $account = Scrollytelling::Export::Account.new hostname
+rights = "This work is licensed to the public under the Creative Commons Attribution-ShareAlike license http://creativecommons.org/licenses/by-cc/4.0/"
 
 index = JSON.parse($account.index.read)
 
@@ -25,6 +24,29 @@ index['entries'].each do |entry|
   entry['screenshots'] = screenshot.paths
   $account.index.write(JSON.pretty_generate(index), mode: 'wt')
 
-  system("exiftool -overwrite_original -Title=\"#{story.title}\" -Language=#{entry['locale']} -XMP:category=screenshot -ImageDescription=\"Large screenshot of the online story «#{story.title}». It was made using a scripted Chrome browser in the process of archiving the full story.\" -CreateDate=\"#{Time.now.to_s[0,19]}\" -OwnerName=Scrollytelling -Copyright='CC-BY-4.0' -XMP:source=\"#{story.url}\" -XMP:relation=\"https://www.scrollytelling.com\" #{story.screenshots}")
+  description = <<~DESC
+    Large screenshot of the online story «#{story.title}».
+    It was made using a scripted Chrome browser in the process of archiving the full story.
+  DESC
+
+  system("exiftool -overwrite_original -sep ' ' \
+    -Author='Joost Baaij' \
+    -CopyrightNotice='CC-BY-4.0' \
+    -CreateDate=\"#{Time.now.to_s[0,19]}\" \
+    -DocumentName=\"#{story.title}\" \
+    -description=\"#{description}\" \
+    -ImageDescription<description \
+    -iptc:Caption-Abstract=\"#{description}\" \
+    -iptc:ObjectName=\"#{story.title}\" \
+    -Keywords+=\"#{story.keywords.presence || 'story multimedia browser' }\" \
+    -Language=#{entry['locale']} \
+    -OwnerName=Scrollytelling \
+    -rights='CC-BY-4.0' \
+    -Title=\"#{story.title}\" \
+    -XMP-cc:AttributionName=\"Scrollytelling\" \
+    -XMP-cc:AttributionURL=\"https://www.scrollytelling.com\" \
+    -XMP-cc:license=\"http://creativecommons.org/licenses/by-cc/4.0/\" \
+    -XMP-dc:Rights=\"#{rights}\" \
+    #{story.screenshots}")
 
 end
