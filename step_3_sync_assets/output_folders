@@ -25,7 +25,7 @@ index['entries'].each do |entry|
       sources.each do |source|
         puts source['path']
           .sub('radion', 'main')
-          .split('/')[2,8]
+          .split('/')[3,7]
           .join('/') if file.present?
       end
     end

@@ -16,23 +16,15 @@ fi
 
 set -vx
 
-# Required software:
-# - ruby
-# - AWS CLI
-# - libvips
-# - GNU parallel
-# - curl
-
-if ! command -v aws || curl || exiftool || parallel || http; then
-	echo "Couldn't find all required software. Needed to proceed:"
-	echo
-	echo "AWS CLI"
-	echo "curl"
-	echo "exiftool"
-	echo "GNU parallel"
-	echo "HTTPie"
-	exit 1
-fi
+deps=( aws curl exiftool parallel http ruby )
+for i in "${deps[@]}"
+do
+	if ! command -v $1; then
+		echo "Couldn't find $1, which is required to proceed."
+		echo
+		exit 1
+	fi
+done
 
 # Setup variables to use throughout the script.
 cname=$1
@@ -50,28 +42,28 @@ then
 fi
 
 # STEP: download live index.html to story folders.
-bin/20_canonical_urls.rb $cname \
-	| parallel --jobs 5 http --ignore-stdin --timeout 60 --download --output $dest/{/}/original.html GET {}
+bin/20_canonical_urls.rb $cname | parallel --jobs 5 \
+	http --ignore-stdin --timeout 60 --download --output $dest/{/}/original.html GET {}
 
 # and the story-specific CSS
-bin/20_canonical_urls.rb $cname \
-  | parallel --jobs 5 http --ignore-stdin --timeout 60 GET https://$cname/entries/{/}.css \
+bin/20_canonical_urls.rb $cname | parallel --jobs 5 \
+	http --ignore-stdin --timeout 60 GET https://$cname/entries/{/}.css \
 	"|"ruby ./step_2_download_story/replace.rb ">"$dest/entries/{/}.css
 
 # STEP: massage the HTML until it's fit for archiving.
-parallel --jobs 5 ruby ./step_2_download_story/replace.rb \
+parallel --jobs 5 \
+	ruby ./step_2_download_story/replace.rb \
 	"<"{} ">"{//}/index.html ::: $dest/*/original.html
 
 # STEP: sync media bucket
-#   add --dryrun before the last quote to see what it will do
-./step_3_sync_assets/media_folders $cname \
-	| parallel --jobs 1 "aws --profile scrollytelling s3 sync s3://{} ${dest}/{}"
+#   add --dryrun to see what it will do
+./step_3_sync_assets/media_folders $cname | parallel --jobs 1 \
+	"aws --profile scrollytelling s3 sync s3://{} ${dest}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
-#   add --dryrun before the last quote to see what it will do
-./step_3_sync_assets/output_folders $cname \
-	| parallel --jobs 1 "aws --profile scrollytelling s3 sync s3://storyboard-pageflow-production-out{} \
-	${dest}/output.scrollytelling.com{}"
+#   add --dryrun to see what it will do
+./step_3_sync_assets/output_folders $cname | parallel --jobs 1 \
+  "aws --profile scrollytelling s3 sync s3://storyboard-pageflow-production-out/{} ${dest}/output.scrollytelling.com/{}"
 
 # STEP: unpack static assets.
 unzip -u ./artifacts/assets.zip -d $dest/scrollytelling.link

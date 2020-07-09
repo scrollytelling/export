@@ -33,11 +33,11 @@ index['entries'].each do |entry|
       next unless file.present? && file['path'].present?
 
       puts file['path']
-        .split('/')[0,7]
+        .split('/')[2,7]
         .join('/')
 
       puts file['poster_path']
-        .split('/')[0,7]
+        .split('/')[2,7]
         .join('/') if file['poster_path']
     end
   end
