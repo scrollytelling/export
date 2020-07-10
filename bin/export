@@ -42,27 +42,27 @@ then
 fi
 
 # STEP: download live index.html to story folders.
-bin/20_canonical_urls.rb $cname | parallel --jobs 5 \
+bin/20_canonical_urls.rb $cname | parallel --eta --jobs 5 \
 	http --ignore-stdin --timeout 60 --download --output $dest/{/}/original.html GET {}
 
 # and the story-specific CSS
-bin/20_canonical_urls.rb $cname | parallel --jobs 5 \
+bin/20_canonical_urls.rb $cname | parallel --eta --jobs 5 \
 	http --ignore-stdin --timeout 60 GET https://$cname/entries/{/}.css \
 	"|"ruby ./step_2_download_story/replace.rb ">"$dest/entries/{/}.css
 
 # STEP: massage the HTML until it's fit for archiving.
-parallel --jobs 5 \
+parallel --eta --jobs 5 \
 	ruby ./step_2_download_story/replace.rb \
 	"<"{} ">"{//}/index.html ::: $dest/*/original.html
 
 # STEP: sync media bucket
 #   add --dryrun to see what it will do
-./step_3_sync_assets/media_folders $cname | parallel --jobs 1 \
+./step_3_sync_assets/media_folders $cname | parallel --eta --jobs 1 \
 	"aws --profile scrollytelling s3 sync s3://{} ${dest}/{}"
 
 # STEP: sync output bucket. Bucket name is different from local path.
 #   add --dryrun to see what it will do
-./step_3_sync_assets/output_folders $cname | parallel --jobs 1 \
+./step_3_sync_assets/output_folders $cname | parallel --eta --jobs 1 \
   "aws --profile scrollytelling s3 sync s3://storyboard-pageflow-production-out/{} ${dest}/output.scrollytelling.com/{}"
 
 # STEP: unpack static assets.
@@ -76,15 +76,15 @@ unzip -u ./artifacts/root.zip -d $dest
 # Convert the PNGs to JPGs
 if [ -x "$(command -v vips)" ]
 then
-	parallel --jobs 10 vips jpegsave {} {.}.jpg ::: ${dest}/**/screenshots/*.png
+	parallel --eta --jobs 10 vips jpegsave {} {.}.jpg ::: ${dest}/**/screenshots/*.png
 	vipsthumbnail ${dest}/**/screenshots/*.png --format=%s_280.jpg --size=280
 fi
 
 # STEP: Generate checksums, to verify archive authenticity.
 cd $dest
 rm --force SHA512SUMS
-find -name '*.html' -type f | parallel --jobs 10 "sha512sum --text {} >>SHA512SUMS"
-find media.scrollytelling.com -path '*/original/*' -type f | parallel --jobs 10 "sha512sum --binary {} >>SHA512SUMS"
+find -name '*.html' -type f | parallel --eta --jobs 10 "sha512sum --text {} >>SHA512SUMS"
+find media.scrollytelling.com -path '*/original/*' -type f | parallel --eta --jobs 10 "sha512sum --binary {} >>SHA512SUMS"
 cd -
 
 # STEP: compile templates based on exported information.

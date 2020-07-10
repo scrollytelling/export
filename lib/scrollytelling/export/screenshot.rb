@@ -48,7 +48,6 @@ module Scrollytelling
           })
         JS
 
-
         # Grab all navigable pages.
         browser.goto story.url
         pages = browser.css('#scrollytelling-navigation a')
@@ -60,9 +59,9 @@ module Scrollytelling
           filename = [story.slug, 'page', index + 1, "#{perma_id}.png"].join('-')
           next if File.exist?(story.screenshots.join(filename))
 
-          print "#{url}... "
+          print "#{url} "
           browser.goto url
-          sleep 2 if index == 0
+          index.zero? ? sleep(5) : sleep(1)
 
           until browser.at_css('body').attribute('class').include? 'finished-loading'
             sleep 0.1

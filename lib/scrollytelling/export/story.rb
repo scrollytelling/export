@@ -10,6 +10,10 @@ module Scrollytelling
         entry['title']
       end
 
+      def caption
+        entry['summary']
+      end
+
       def path
         $account.root.join(slug)
       end

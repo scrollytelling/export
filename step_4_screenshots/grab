@@ -17,8 +17,10 @@ rights = "This work is licensed to the public under the Creative Commons Attribu
 
 index = JSON.parse($account.index.read)
 
-index['entries'].each do |entry|
+index['entries'].each_with_index do |entry, counter|
   story = Scrollytelling::Export::Story.new(entry)
+  puts "📸 [#{counter + 1}/#{index['entries'].length}] #{story.title}"
+
   screenshot = Scrollytelling::Export::Screenshot.new story
   screenshot.create_all!
   entry['screenshots'] = screenshot.paths
@@ -35,9 +37,9 @@ index['entries'].each do |entry|
     -CreateDate=\"#{Time.now.to_s[0,19]}\" \
     -DocumentName=\"#{story.title}\" \
     -description=\"#{description}\" \
-    -ImageDescription<description \
-    -iptc:Caption-Abstract=\"#{description}\" \
-    -iptc:ObjectName=\"#{story.title}\" \
+    -ImageDescription=\"#{description}\" \
+    -iptc:URL=\"#{story.url}\" \
+    -iptc:Caption=\"#{story.caption}\" \
     -Keywords+=\"#{story.keywords.presence || 'story multimedia browser' }\" \
     -Language=#{entry['locale']} \
     -OwnerName=Scrollytelling \
