@@ -38,8 +38,8 @@ index['entries'].each_with_index do |entry, counter|
     -DocumentName=\"#{story.title}\" \
     -description=\"#{description}\" \
     -ImageDescription=\"#{description}\" \
-    -iptc:URL=\"#{story.url}\" \
-    -iptc:Caption=\"#{story.caption}\" \
+    -URL=\"#{story.url}\" \
+    -Caption=\"#{story.caption}\" \
     -Keywords+=\"#{story.keywords.presence || 'story multimedia browser' }\" \
     -Language=#{entry['locale']} \
     -OwnerName=Scrollytelling \
