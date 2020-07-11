@@ -19,6 +19,7 @@ index = JSON.parse($account.index.read)
 
 index['entries'].each_with_index do |entry, counter|
   story = Scrollytelling::Export::Story.new(entry)
+  puts
   puts "📸 [#{counter + 1}/#{index['entries'].length}] #{story.title}"
 
   screenshot = Scrollytelling::Export::Screenshot.new story
@@ -31,22 +32,24 @@ index['entries'].each_with_index do |entry, counter|
     It was made using a scripted Chrome browser in the process of archiving the full story.
   DESC
 
-  system("exiftool -overwrite_original -sep ' ' \
+  system("exiftool -ignoreMinorErrors -overwrite_original -sep ' ' \
     -Author='Joost Baaij' \
     -CopyrightNotice='CC-BY-4.0' \
     -CreateDate=\"#{Time.now.to_s[0,19]}\" \
+    -DateTimeOriginal=\"#{story.published_at}\" \
     -DocumentName=\"#{story.title}\" \
     -description=\"#{description}\" \
     -ImageDescription=\"#{description}\" \
     -URL=\"#{story.url}\" \
     -Caption=\"#{story.caption}\" \
-    -Keywords+=\"#{story.keywords.presence || 'story multimedia browser' }\" \
-    -Language=#{entry['locale']} \
+    -Keywords=\"#{story.keywords.presence || 'story multimedia screenshot' }\" \
+    -Language=#{story.language} \
     -OwnerName=Scrollytelling \
     -rights='CC-BY-4.0' \
     -Title=\"#{story.title}\" \
     -XMP-cc:AttributionName=\"Scrollytelling\" \
     -XMP-cc:AttributionURL=\"https://www.scrollytelling.com\" \
+    -XMP:CreateDate=\"#{Time.now.to_s}\" \
     -XMP-cc:license=\"http://creativecommons.org/licenses/by-cc/4.0/\" \
     -XMP-dc:Rights=\"#{rights}\" \
     #{story.screenshots}")

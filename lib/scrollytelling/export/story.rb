@@ -29,6 +29,14 @@ module Scrollytelling
       def keywords
         entry['keywords']
       end
+
+      def language
+        entry['locale']
+      end
+
+      def published_at
+        entry['published_at']
+      end
     end
   end
 end
