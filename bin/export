@@ -102,17 +102,21 @@ bin/70_database.sh $cname
 
 
 ## HOSTING
-
+#
+# Chuck it anywhere a static http server runs.
+#
 # Sync to our long-term archive
-#rsync \
-#  --compress \
-#  --delete \
-#  --human-readable \
-#  --no-owner \
-#  --partial-dir=.rsync \
-#  --progress \
-#  --recursive \
-#  --safe-links \
-#  --times \
-#  --verbose \
-#  $cname $remote_location
+# rsync \
+#   --compress \
+#   --delete \
+#   --human-readable \
+#   --info=progress2 \
+#   --no-inc-recursive \
+#   --no-owner \
+#   --partial-dir=.rsync \
+#   --progress \
+#   --recursive \
+#   --safe-links \
+#   --times \
+#   --verbose \
+#   $cname $remote_location
