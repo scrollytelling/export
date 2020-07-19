@@ -51,6 +51,7 @@ module Scrollytelling
 
         # Grab all navigable pages.
         browser.goto story.url
+        sleep 10
         pages = browser.css('#scrollytelling-navigation a')
         puts "#{pages.length} screenshots in #{story.screenshots}"
 
@@ -62,8 +63,7 @@ module Scrollytelling
 
           print "#{url} "
           browser.goto url
-
-          index.zero? ? sleep(5) : sleep(1)
+          sleep 10
 
           until browser.at_css('body').attribute('class').include? 'finished-loading'
             sleep 0.1
@@ -72,13 +72,12 @@ module Scrollytelling
           browser.screenshot(path: story.screenshots.join(filename))
           @paths[:pages] << absolute(story.screenshots.join(filename))
           puts "✅ #{filename}"
-
-          sleep 5
         end
 
         # Grab the opening page; when this exists, all screens are complete.
         browser.goto story.url
-        sleep 2
+        sleep 10
+
         browser.screenshot(full: true, path: title_card_path)
         @paths[:title] = absolute(title_card_path)
 
