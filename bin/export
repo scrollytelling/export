@@ -16,11 +16,9 @@ fi
 
 set -vx
 
-deps=( aws curl exiftool parallel http ruby )
-for i in "${deps[@]}"
-do
-	if ! command -v $1; then
-		echo "Couldn't find $1, which is required to proceed."
+for cmd in aws curl exiftool parallel http ruby; do
+	if ! command -v $cmd; then
+		echo "Couldn't find $cmd, which is required to proceed."
 		echo
 		exit 1
 	fi
