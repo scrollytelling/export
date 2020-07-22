@@ -37,7 +37,7 @@ module Scrollytelling
             .sort_by { |path| path.scan(/\d+/).first.to_i }
             .each do |path|
 
-            @paths[:pages] << absolute(path)
+            @paths[:pages] << absolute(path.sub(/.png\Z/, ''))
           end
           return
         end

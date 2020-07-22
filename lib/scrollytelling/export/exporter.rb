@@ -59,7 +59,7 @@ module Scrollytelling
             "id" => SecureRandom.uuid,
             "summary" => "A collection of multimedia stories, originally published using Scrollytelling.",
             "created_at" => Time.current.iso8601,
-            "format" => '1.2.0',
+            "format" => '2.0.0',
             "curators" => [
               { "name" => 'Joost Baaij', "email" => 'joost@spacebabies.nl'}
             ],
