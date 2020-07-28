@@ -37,7 +37,8 @@ module Scrollytelling
             .sort_by { |path| path.scan(/\d+/).first.to_i }
             .each do |path|
 
-            @paths[:pages] << absolute(path.sub(/.png\Z/, ''))
+              path.slice! File.extname(path) # drop the extension
+              @paths[:pages] << absolute(path) # store the result in the index
           end
           return
         end
