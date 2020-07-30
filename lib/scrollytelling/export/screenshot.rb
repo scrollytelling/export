@@ -11,8 +11,8 @@ module Scrollytelling
       def initialize(story)
         @story = story
         @browser = Ferrum::Browser.new(
-          timeout: 120,
-          process_timeout: 30,
+          timeout: 300,
+          process_timeout: 300,
           window_size: [1600,1080]
         )
         @paths = { title_card: absolute(title_card_path), pages: [] }
@@ -64,10 +64,10 @@ module Scrollytelling
 
           print "#{url} "
           browser.goto url
-          sleep 10
+          sleep 3
 
           until browser.at_css('body').attribute('class').include? 'finished-loading'
-            sleep 0.1
+            sleep 1
           end
 
           browser.screenshot(path: story.screenshots.join(filename))

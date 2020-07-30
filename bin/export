@@ -96,7 +96,7 @@ cd -
 ./step_4_ctimes/run.rb $cname
 
 # STEP: export account-specific slice of the database
-bin/70_database.sh $cname
+# bin/70_database.sh $cname
 
 
 ## HOSTING
